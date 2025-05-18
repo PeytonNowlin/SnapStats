@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    :root {
+      --primary-color: #5271FF;
+      --primary-dark: #3E54AC;
+      --primary-light: #7B9EFF;
+      --secondary-color: #FF7DAB;
+      --light-bg: #F8F9FA;
+      --dark-text: #2C3345;
+      --medium-text: #596275;
+      --light-text: #8395A7;
+      --success: #55efc4;
+      --warning: #fdcb6e;
+      --error: #ff7675;
+      --border-radius: 8px;
+      --card-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      width: 450px;
+      padding: 0;
+      margin: 0;
+      color: var(--dark-text);
+      background-color: #FFFFFF;
+      margin-right: 5px;
+    }
+    
+    .header {
+      padding: 16px;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      padding-bottom: 20px;
+    }
+    
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+    }
+    
+    .snap {
+      color: white;
+    }
+    
+    .stats {
+      color: var(--secondary-color);
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    
+    .main-content {
+      padding: 16px;
+      position: relative;
+    }
+    
+    button {
+      background: white;
+      color: var(--primary-color);
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+    }
+    
+    button:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    button:disabled {
+      background: rgba(255, 255, 255, 0.6);
+      color: rgba(82, 113, 255, 0.5);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    #status {
+      margin: 8px 0;
+      color: var(--medium-text);
+      font-size: 14px;
+      padding: 8px 0;
+      min-height: 20px;
+      text-align: center;
+    }
+    
+    .tab-container {
+      margin-bottom: 16px;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      gap: 2px;
+      margin: -16px -16px 16px -16px;
+      background-color: var(--light-bg);
+      padding: 8px 16px;
+      position: relative;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      justify-content: space-between;
+    }
+    
+    .tab-buttons::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .tab-button {
+      background: transparent;
+      color: var(--medium-text);
+      border: none;
+      padding: 8px 10px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 13px;
+      box-shadow: none;
+      font-weight: 500;
+      white-space: nowrap;
+      flex: 1;
+      min-width: auto;
+      text-align: center;
+    }
+    
+    .tab-button:hover {
+      background: rgba(82, 113, 255, 0.05);
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .tab-button.active {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+      min-height: 300px;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 12px 16px;
+      background-color: var(--light-bg);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--dark-text);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-content {
+      padding: 16px;
+    }
+    
+    /* Added more space for the history chart */
+    #history .card-content {
+      padding: 16px 16px 32px 16px;
+    }
+    
+    .results-container {
+      background: white;
+      border-radius: var(--border-radius);
+    }
+    
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      align-items: center;
+    }
+    
+    .metric-name {
+      color: var(--medium-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .metric-value {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--light-bg);
+    }
+    
+    .good { color: var(--success); background: rgba(85, 239, 196, 0.1); }
+    .warning { color: var(--warning); background: rgba(253, 203, 110, 0.1); }
+    .poor { color: var(--error); background: rgba(255, 118, 117, 0.1); }
+    
+    .mini-chart {
+      height: 180px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 16px 16px 36px 16px;
+      position: relative;
+      margin-bottom: 30px;
+    }
+    
+    .mini-chart-bar {
+      flex: 1;
+      background: var(--primary-color);
+      transition: height 0.3s ease;
+      position: relative;
+      min-width: 30px;
+      min-height: 5px;
+      border-radius: 4px 4px 0 0;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+    
+    .mini-chart-bar:hover {
+      opacity: 1;
+      transform: scaleY(1.02);
+    }
+    
+    .mini-chart-bar::after {
+      content: attr(data-value);
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: var(--dark-text);
+      white-space: nowrap;
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .mini-chart-bar:hover::after {
+      opacity: 1;
+    }
+    
+    .mini-chart-bar::before {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--medium-text);
+      white-space: nowrap;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--medium-text);
+      font-weight: 500;
+    }
+    
+    .form-group select, .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      background-color: white;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group select:focus, .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    .waterfall-container {
+      margin-top: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    
+    .waterfall-item {
+      display: flex;
+      margin-bottom: 6px;
+      height: 20px;
+      align-items: center;
+      font-size: 12px;
+    }
+    
+    .waterfall-label {
+      width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--medium-text);
+    }
+    
+    .waterfall-bar {
+      background: var(--primary-color);
+      height: 10px;
+      position: relative;
+      min-width: 1px;
+      border-radius: 2px;
+    }
+    
+    .waterfall-bar-wait {
+      background: var(--light-text);
+      opacity: 0.4;
+    }
+    
+    .waterfall-time {
+      margin-left: 8px;
+      color: var(--medium-text);
+    }
+    
+    .section-title {
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--dark-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .export-btn {
+      background: var(--light-bg);
+      color: var(--medium-text);
+      border: none;
+      padding: 6px 12px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 8px;
+      box-shadow: none;
+      font-weight: 500;
+    }
+    
+    .export-btn:hover {
+      background: var(--primary-light);
+      color: white;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .third-party-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+    }
+    
+    .third-party-domain {
+      font-weight: 500;
+      color: var(--dark-text);
+    }
+    
+    .third-party-size {
+      color: var(--medium-text);
+    }
+    
+    .recommendations {
+      margin-top: 16px;
+    }
+    
+    .recommendation {
+      background: rgba(255, 125, 171, 0.05);
+      border-left: 3px solid var(--secondary-color);
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      color: var(--dark-text);
+    }
+    
+    .chart-help {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--medium-text);
+    }
+    
+    .icon {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+    
+    .network-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    
+    .network-table th {
+      text-align: left;
+      padding: 8px 12px;
+      color: var(--medium-text);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .network-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      color: var(--dark-text);
+    }
+    
+    /* Footer styles */
+    .footer {
+      padding: 12px 16px;
+      background-color: var(--light-bg);
+      font-size: 12px;
+      color: var(--medium-text);
+      text-align: center;
+      margin-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Animated loading indicator */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="app-title">
+        <div class="logo"><span class="snap">Snap</span><span class="stats">Stats</span></div>
+      </div>
+      <div class="subtitle">Instant web performance insights</div>
+    </div>
+    <button id="run">Run Analysis</button>
+  </div>
+  
+  <div class="main-content">
+    <div id="status"></div>
+
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" data-tab="metrics">Metrics</button>
+        <button class="tab-button" data-tab="waterfall">Waterfall</button>
+        <button class="tab-button" data-tab="network">Resources</button>
+        <button class="tab-button" data-tab="third-party">3rd Party</button>
+        <button class="tab-button" data-tab="history">History</button>
+        <button class="tab-button" data-tab="settings">Settings</button>
+      </div>
+
+      <div id="metrics" class="tab-content active">
+        <div class="card">
+          <div class="card-header">Performance Overview</div>
+          <div class="card-content">
+            <div id="results" class="results-container"></div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Recommendations</div>
+          <div class="card-content">
+            <div id="recommendations" class="recommendations"></div>
+          </div>
+        </div>
+        
+        <div class="section-title">Export Results</div>
+        <div>
+          <button id="exportJSON" class="export-btn">JSON</button>
+          <button id="exportCSV" class="export-btn">CSV</button>
+        </div>
+      </div>
+      
+      <div id="waterfall" class="tab-content">
+        <div class="card">
+          <div class="card-header">Resource Load Timeline</div>
+          <div class="card-content">
+            <div class="waterfall-container" id="waterfallChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="network" class="tab-content">
+        <div class="card">
+          <div class="card-header">Network Requests</div>
+          <div class="card-content">
+            <table class="network-table">
+              <thead>
+                <tr>
+                  <th>Resource</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="networkResults"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div id="third-party" class="tab-content">
+        <div class="card">
+          <div class="card-header">Third-Party Resources</div>
+          <div class="card-content">
+            <div id="thirdPartyResources"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="history" class="tab-content">
+        <div class="card">
+          <div class="card-header">Performance Trends</div>
+          <div class="card-content" style="padding-bottom: 40px;">
+            <div id="historyChart" class="mini-chart"></div>
+            <div class="chart-help">
+              Run multiple analyses to see performance trends over time
+            </div>
+            <button id="clearHistory" class="export-btn" style="margin-top: 24px;">Clear History</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="settings" class="tab-content">
+        <div class="card">
+          <div class="card-header">Analysis Settings</div>
+          <div class="card-content">
+            <div class="form-group">
+              <label for="deviceType">Device Simulation</label>
+              <select id="deviceType">
+                <option value="none">No Simulation</option>
+                <option value="mobile">Mobile Device</option>
+                <option value="tablet">Tablet</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="networkThrottle">Network Throttling</label>
+              <select id="networkThrottle">
+                <option value="none">No Throttling</option>
+                <option value="fast3G">Fast 3G</option>
+                <option value="slow3G">Slow 3G</option>
+                <option value="2G">2G</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="cpuThrottle">CPU Throttling</label>
+              <select id="cpuThrottle">
+                <option value="1">No Throttling (1x)</option>
+                <option value="2">2x Slowdown</option>
+                <option value="4">4x Slowdown</option>
+                <option value="6">6x Slowdown</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    SnapStats v1.0.0 - Instantly analyze and improve web performance
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

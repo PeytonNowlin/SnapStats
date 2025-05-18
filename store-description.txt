@@ -1,0 +1,37 @@
+SnapStats - Analyze Website Performance
+
+SnapStats helps developers and website owners measure, analyze, and improve website performance using key Core Web Vitals metrics.
+
+✓ Measure Core Web Vitals:
+• Time to First Byte (TTFB)
+• First Contentful Paint (FCP)
+• Largest Contentful Paint (LCP)
+• Cumulative Layout Shift (CLS)
+• DOM Content Loaded time
+• Page load time
+
+✓ Analyze Page Resources:
+• Resource count and size analysis
+• Network request breakdowns
+• Resource loading times
+
+✓ Get Actionable Insights:
+• Performance recommendations based on metrics
+• Color-coded performance indicators
+• Historical performance tracking
+
+The extension runs only when you click "Run Audit" and all data is stored locally on your device. SnapStats helps you understand and improve your website's performance to enhance user experience and SEO ranking.
+
+Perfect for:
+• Web developers
+• Website owners
+• Performance analysts
+• SEO specialists
+• Anyone interested in optimizing web performance
+
+Privacy-focused: No data is sent to external servers, and no tracking or analytics are used.
+
+Permissions:
+• activeTab: To analyze the current tab (only when you click "Run Audit")
+• scripting: To run performance measurement code
+• storage: To save performance history locally on your device 

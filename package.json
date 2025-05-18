@@ -1,0 +1,11 @@
+{
+  "name": "performance-insights",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate-icons": "node generate-icons.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.2"
+  }
+} 
