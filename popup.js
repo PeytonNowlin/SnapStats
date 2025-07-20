@@ -418,6 +418,134 @@ function updateThirdPartyAnalysis(resources, currentDomain) {
   `).join('');
 }
 
+// Update accessibility analysis
+function updateAccessibilityAnalysis(metrics) {
+  const accessibilityEl = document.getElementById('accessibilityResults');
+  
+  const accessibilityIssues = [];
+  const accessibilityWarnings = [];
+  const accessibilityGood = [];
+  
+  // Check for common accessibility issues
+  if (metrics.cls > 0.1) {
+    accessibilityIssues.push({
+      type: 'error',
+      title: 'Layout Shifts',
+      description: 'Significant layout shifts detected which can disorient users with disabilities.',
+      impact: 'High'
+    });
+  } else if (metrics.cls > 0.05) {
+    accessibilityWarnings.push({
+      type: 'warning',
+      title: 'Minor Layout Shifts',
+      description: 'Some layout shifts detected. Consider setting explicit dimensions for images.',
+      impact: 'Medium'
+    });
+  } else {
+    accessibilityGood.push({
+      type: 'success',
+      title: 'Stable Layout',
+      description: 'Good layout stability with minimal shifts.',
+      impact: 'Low'
+    });
+  }
+  
+  if (metrics.fid > 300) {
+    accessibilityIssues.push({
+      type: 'error',
+      title: 'Slow Interactivity',
+      description: 'Slow response to user interactions can make the site difficult to use.',
+      impact: 'High'
+    });
+  } else if (metrics.fid > 100) {
+    accessibilityWarnings.push({
+      type: 'warning',
+      title: 'Moderate Interactivity',
+      description: 'Response time could be improved for better accessibility.',
+      impact: 'Medium'
+    });
+  } else {
+    accessibilityGood.push({
+      type: 'success',
+      title: 'Fast Interactivity',
+      description: 'Good response time for user interactions.',
+      impact: 'Low'
+    });
+  }
+  
+  if (metrics.resourceCount > 100) {
+    accessibilityWarnings.push({
+      type: 'warning',
+      title: 'Many Resources',
+      description: 'High number of resources may slow down assistive technologies.',
+      impact: 'Medium'
+    });
+  }
+  
+  if (metrics.totalResourceSize > 10 * 1024 * 1024) {
+    accessibilityWarnings.push({
+      type: 'warning',
+      title: 'Large Page Size',
+      description: 'Large page size may impact users with slower connections.',
+      impact: 'Medium'
+    });
+  }
+  
+  // Generate accessibility report
+  let html = '';
+  
+  if (accessibilityIssues.length > 0) {
+    html += `
+      <div style="margin-bottom: 20px;">
+        <h4 style="color: var(--error); margin-bottom: 12px;">🚨 Critical Issues (${accessibilityIssues.length})</h4>
+        ${accessibilityIssues.map(issue => `
+          <div style="background: rgba(255, 118, 117, 0.1); border-left: 3px solid var(--error); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
+            <div style="font-weight: 600; color: var(--error); margin-bottom: 4px;">${issue.title}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+  
+  if (accessibilityWarnings.length > 0) {
+    html += `
+      <div style="margin-bottom: 20px;">
+        <h4 style="color: var(--warning); margin-bottom: 12px;">⚠️ Warnings (${accessibilityWarnings.length})</h4>
+        ${accessibilityWarnings.map(issue => `
+          <div style="background: rgba(253, 203, 110, 0.1); border-left: 3px solid var(--warning); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
+            <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">${issue.title}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+  
+  if (accessibilityGood.length > 0) {
+    html += `
+      <div style="margin-bottom: 20px;">
+        <h4 style="color: var(--success); margin-bottom: 12px;">✅ Good Practices (${accessibilityGood.length})</h4>
+        ${accessibilityGood.map(issue => `
+          <div style="background: rgba(85, 239, 196, 0.1); border-left: 3px solid var(--success); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
+            <div style="font-weight: 600; color: var(--success); margin-bottom: 4px;">${issue.title}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+  
+  if (accessibilityIssues.length === 0 && accessibilityWarnings.length === 0 && accessibilityGood.length === 0) {
+    html = '<div style="padding: 20px; text-align: center; color: var(--medium-text);">No accessibility data available</div>';
+  }
+  
+  accessibilityEl.innerHTML = html;
+}
+
 // Update network table
 function updateNetworkTable(resources) {
   const tbody = document.getElementById('networkResults');
@@ -431,7 +559,7 @@ function updateNetworkTable(resources) {
   `).join('');
 }
 
-// Main analysis function
+// Enhanced main analysis function with better error handling
 async function runAnalysis() {
   const resultsEl = document.getElementById('results');
   const recommendationsEl = document.getElementById('recommendations');
@@ -439,7 +567,8 @@ async function runAnalysis() {
   resultsEl.innerHTML = '';
   recommendationsEl.innerHTML = '';
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
   if (!tab) {
     throw new Error('No active tab found');
@@ -459,10 +588,11 @@ async function runAnalysis() {
   const injected = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: (settings) => {
-      const timing = performance.timing;
-      const nav = performance.getEntriesByType('navigation')[0];
-      const paints = performance.getEntriesByType('paint');
-      const currentDomain = window.location.hostname;
+      try {
+        const timing = performance.timing;
+        const nav = performance.getEntriesByType('navigation')[0];
+        const paints = performance.getEntriesByType('paint');
+        const currentDomain = window.location.hostname;
       
       // Apply CPU throttling if selected
       if (settings.cpuThrottle > 1) {
@@ -590,12 +720,20 @@ async function runAnalysis() {
         responseEnd: r.responseEnd
       }));
 
-      return metrics;
+        return metrics;
+      } catch (error) {
+        console.error('Error in performance analysis:', error);
+        throw new Error('Failed to analyze page performance');
+      }
     },
     args: [settings]
   });
 
   const metrics = injected[0].result;
+  
+  if (!metrics) {
+    throw new Error('No performance data received');
+  }
   
   // Save metrics for export
   localStorage.setItem('lastMetrics', JSON.stringify(metrics));
@@ -645,10 +783,16 @@ async function runAnalysis() {
   const recommendations = generateRecommendations(metrics);
   if (recommendations.length > 0) {
     recommendationsEl.innerHTML = recommendations
-      .map(rec => `<div class="recommendation">${rec.text}</div>`)
+      .map(rec => `<div class="recommendation ${rec.priority}">
+        <div class="recommendation-header">
+          <span class="priority-badge ${rec.priority}">${rec.priority.toUpperCase()}</span>
+          <span class="category-badge">${rec.category}</span>
+        </div>
+        <div class="recommendation-text">${rec.text}</div>
+      </div>`)
       .join('');
   } else {
-    recommendationsEl.innerHTML = '<div style="padding: 16px; text-align: center;">No recommendations - great job!</div>';
+    recommendationsEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--success);">🎉 No recommendations - excellent performance!</div>';
   }
   
   // Update history chart
@@ -664,11 +808,34 @@ async function runAnalysis() {
   // Update third-party analysis
   updateThirdPartyAnalysis(metrics.resources, metrics.currentDomain);
   
+  // Update accessibility analysis
+  updateAccessibilityAnalysis(metrics);
+  
   // Update status
-  updateStatus('Analysis complete!');
+  updateStatus('Analysis complete! 🚀');
   clearStatus();
   
   return metrics;
+  
+  } catch (error) {
+    console.error('Analysis error:', error);
+    updateStatus(`Error: ${error.message}`, false);
+    
+    // Show user-friendly error message
+    resultsEl.innerHTML = `
+      <div style="padding: 20px; text-align: center; color: var(--error);">
+        <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+        <div style="font-weight: 600; margin-bottom: 8px;">Analysis Failed</div>
+        <div style="font-size: 14px; color: var(--medium-text);">${error.message}</div>
+        <div style="margin-top: 12px; font-size: 12px; color: var(--light-text);">
+          Try refreshing the page and running the analysis again.
+        </div>
+      </div>
+    `;
+    
+    recommendationsEl.innerHTML = '';
+    throw error;
+  }
 }
 
 // Update the status message with loading animation
