@@ -89,7 +89,7 @@
 
 ## Contact Information
 - **Developer:** Peyton Nowlin
-- **Email:** peytonn98@gmail.com
+- **Email:** peyton@teamnowlin.com
 - **GitHub:** https://github.com/PeytonNowlin/snapstats
 
 ## Files to Upload

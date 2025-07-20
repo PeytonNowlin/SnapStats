@@ -23,7 +23,7 @@
 
 ### Developer Information
 - [x] Developer name: Peyton Nowlin
-- [x] Developer email: peytonn98@gmail.com
+- [x] Developer email: peyton@teamnowlin.com
 - [x] Extension name: SnapStats
 - [x] Version: 1.0.0
 
@@ -40,7 +40,7 @@ Take 1-5 screenshots showing your extension in action:
 
 ### 2. Chrome Web Store Submission
 1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
-2. Sign in with peytonn98@gmail.com
+2. Sign in with peyton@teamnowlin.com
 3. Pay $5 developer registration fee (if not already paid)
 4. Click "Add new item"
 5. Upload `snapstats.zip`
