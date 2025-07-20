@@ -559,6 +559,42 @@ function updateNetworkTable(resources) {
   `).join('');
 }
 
+// Calculate overall performance score (0-100)
+function calculatePerformanceScore(metrics) {
+  let score = 100;
+  
+  // Deduct points for poor performance
+  if (metrics.ttfb > THRESHOLDS.ttfb.poor) score -= 15;
+  else if (metrics.ttfb > THRESHOLDS.ttfb.good) score -= 8;
+  
+  if (metrics.fcp > THRESHOLDS.fcp.poor) score -= 15;
+  else if (metrics.fcp > THRESHOLDS.fcp.good) score -= 8;
+  
+  if (metrics.lcp > THRESHOLDS.lcp.poor) score -= 15;
+  else if (metrics.lcp > THRESHOLDS.lcp.good) score -= 8;
+  
+  if (metrics.cls > 0.25) score -= 10;
+  else if (metrics.cls > 0.1) score -= 5;
+  
+  if (metrics.resourceCount > 100) score -= 5;
+  else if (metrics.resourceCount > 50) score -= 2;
+  
+  if (metrics.totalResourceSize > 10 * 1024 * 1024) score -= 5;
+  else if (metrics.totalResourceSize > 5 * 1024 * 1024) score -= 2;
+  
+  // Ensure score doesn't go below 0
+  return Math.max(0, Math.round(score));
+}
+
+// Get performance grade from score
+function getPerformanceGrade(score) {
+  if (score >= 90) return { grade: 'A', color: 'var(--success)', emoji: '🚀' };
+  if (score >= 80) return { grade: 'B', color: 'var(--success)', emoji: '👍' };
+  if (score >= 70) return { grade: 'C', color: 'var(--warning)', emoji: '⚠️' };
+  if (score >= 60) return { grade: 'D', color: 'var(--warning)', emoji: '😐' };
+  return { grade: 'F', color: 'var(--error)', emoji: '😞' };
+}
+
 // Enhanced main analysis function with better error handling
 async function runAnalysis() {
   const resultsEl = document.getElementById('results');
@@ -814,6 +850,21 @@ async function runAnalysis() {
   // Update status
   updateStatus('Analysis complete! 🚀');
   clearStatus();
+  
+  // Calculate performance score
+  const score = calculatePerformanceScore(metrics);
+  const grade = getPerformanceGrade(score);
+  
+  // Display performance grade
+  const gradeEl = document.createElement('div');
+  gradeEl.className = 'performance-grade';
+  gradeEl.innerHTML = `
+    <div class="grade-emoji">${grade.emoji}</div>
+    <div class="grade-text">${grade.grade} (${score}%)</div>
+  `;
+  gradeEl.style.color = grade.color;
+  
+  resultsEl.appendChild(gradeEl);
   
   return metrics;
   
