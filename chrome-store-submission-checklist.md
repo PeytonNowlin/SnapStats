@@ -11,7 +11,7 @@
   - [x] 128x128 icon (for store listing)
 - [x] Developer information:
   - [x] Developer name: Peyton Nowlin
-  - [x] Developer email: peytonn98@gmail.com
+  - [x] Developer email: peyton@teamnowlin.com
 - [x] Privacy policy: PRIVACY.md
 - [x] Extension ZIP package: snapstats.zip
 
