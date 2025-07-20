@@ -1053,3 +1053,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+});
