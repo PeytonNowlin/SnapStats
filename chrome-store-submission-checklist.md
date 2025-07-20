@@ -17,10 +17,12 @@
 
 ## Optional but Recommended
 - [ ] Screenshots (1280x800 or 640x400 pixels, at least 1, max 5)
+  - [ ] Run `npm run generate-screenshots` to create screenshots
 - [ ] Promotional images:
   - [ ] Small promotional tile (440x280 pixels)
   - [ ] Large promotional tile (optional, 920x680 pixels)
   - [ ] Marquee promotional tile (optional, 1400x560 pixels)
+  - [ ] Run `npm run generate-promotional` to create promotional images
 
 ## Chrome Web Store Developer Dashboard Information
 - [ ] Category: Developer Tools

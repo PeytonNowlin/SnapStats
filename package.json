@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "generate-icons": "node generate-icons.js"
+    "generate-icons": "node generate-icons.js",
+    "generate-promotional": "node generate-promotional-images.js",
+    "prepare-store": "npm run generate-promotional && echo 'Store assets generated successfully!'"
   },
   "dependencies": {
     "sharp": "^0.33.2"
