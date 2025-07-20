@@ -64,7 +64,7 @@ Take 1-5 screenshots showing your extension in action:
 - **Extension will be live on:** https://chrome.google.com/webstore/
 
 ## 📧 CONTACT
-- **Email for review questions:** peytonn98@gmail.com
+- **Email for review questions:** peyton@teamnowlin.com
 - **GitHub repository:** https://github.com/PeytonNowlin/snapstats
 
 ## 🚀 READY TO SUBMIT!
