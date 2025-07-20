@@ -59,7 +59,13 @@
   - Marquee tile (1400x560): `promotional-images/marquee-tile.png` (optional)
 
 ### Step 5: Privacy and Security
-- **Privacy policy:** Upload `PRIVACY.md` or provide URL
+- **Privacy policy:** You need a public URL for your privacy policy. Options:
+  1. **GitHub Pages (Recommended):**
+     - Upload `privacy-policy.html` to your GitHub repository
+     - Enable GitHub Pages in repository settings
+     - Use URL: `https://[your-username].github.io/[repo-name]/privacy-policy.html`
+  2. **Alternative hosting:** Upload to any web hosting service
+  3. **Note:** The Chrome Web Store requires a public URL, not a local file
 - **Permissions justification:** 
   - `activeTab`: To analyze the current tab's performance
   - `scripting`: To run performance measurement code
