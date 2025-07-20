@@ -774,8 +774,16 @@ async function runAnalysis() {
   // Save metrics for export
   localStorage.setItem('lastMetrics', JSON.stringify(metrics));
 
-  // Display results
+  // Calculate performance score first
+  const score = calculatePerformanceScore(metrics);
+  const grade = getPerformanceGrade(score);
+  
+  // Display results with performance grade
   resultsEl.innerHTML = `
+    <div class="performance-grade" style="color: ${grade.color};">
+      <div class="grade-emoji">${grade.emoji}</div>
+      <div class="grade-text">${grade.grade} (${score}%)</div>
+    </div>
     ${createMetricElement('Time to First Byte', metrics.ttfb, THRESHOLDS.ttfb)}
     ${createMetricElement('First Contentful Paint', metrics.fcp, THRESHOLDS.fcp)}
     ${createMetricElement('Largest Contentful Paint', metrics.lcp, THRESHOLDS.lcp)}
@@ -850,21 +858,6 @@ async function runAnalysis() {
   // Update status
   updateStatus('Analysis complete! 🚀');
   clearStatus();
-  
-  // Calculate performance score
-  const score = calculatePerformanceScore(metrics);
-  const grade = getPerformanceGrade(score);
-  
-  // Display performance grade
-  const gradeEl = document.createElement('div');
-  gradeEl.className = 'performance-grade';
-  gradeEl.innerHTML = `
-    <div class="grade-emoji">${grade.emoji}</div>
-    <div class="grade-text">${grade.grade} (${score}%)</div>
-  `;
-  gradeEl.style.color = grade.color;
-  
-  resultsEl.appendChild(gradeEl);
   
   return metrics;
   
@@ -946,6 +939,44 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
+  // Function to switch tabs
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(tabName);
+    
+    if (activeButton && activeContent) {
+      activeButton.classList.add('active');
+      activeContent.classList.add('active');
+    }
+      
+    // Show history data when tab is clicked
+    if (tabName === 'history') {
+      try {
+        const data = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
+        if (Array.isArray(data) && data.length > 0) {
+          updateHistoryChartFromData(data);
+        } else {
+          // Show a message if no history data
+          const chartEl = document.getElementById('historyChart');
+          chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
+        }
+        
+        // Ensure the tab content is visible
+        setTimeout(() => {
+          const historyTab = document.getElementById('history');
+          if (historyTab) {
+            historyTab.style.display = 'block';
+          }
+        }, 50);
+      } catch (e) {
+        console.error('Error displaying history on tab click:', e);
+      }
+    }
+  }
+  
   // Keyboard navigation
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey) {
@@ -991,44 +1022,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    
-    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
-    const activeContent = document.getElementById(tabName);
-    
-    if (activeButton && activeContent) {
-      activeButton.classList.add('active');
-      activeContent.classList.add('active');
-    }
-      
-      // Show history data when tab is clicked
-      if (tabName === 'history') {
-        try {
-          const data = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
-          if (Array.isArray(data) && data.length > 0) {
-            updateHistoryChartFromData(data);
-          } else {
-            // Show a message if no history data
-            const chartEl = document.getElementById('historyChart');
-            chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
-          }
-          
-          // Ensure the tab content is visible
-          setTimeout(() => {
-            const historyTab = document.getElementById('history');
-            if (historyTab) {
-              historyTab.style.display = 'block';
-            }
-          }, 50);
-        } catch (e) {
-          console.error('Error displaying history on tab click:', e);
-        }
-      }
-    }
-  });
-  
   // Add settings change event listeners
   document.getElementById('deviceType').addEventListener('change', saveSettings);
   document.getElementById('networkThrottle').addEventListener('change', saveSettings);
@@ -1052,5 +1045,4 @@ document.addEventListener('DOMContentLoaded', function() {
       alert('No data to export. Please run an analysis first.');
     }
   });
-});
 });
