@@ -1,9 +1,11 @@
 // popup.js
-// Performance thresholds (in milliseconds)
+// Enhanced performance thresholds (in milliseconds)
 const THRESHOLDS = {
   ttfb: { good: 100, poor: 300 },
   fcp: { good: 1800, poor: 3000 },
   lcp: { good: 2500, poor: 4000 },
+  fid: { good: 100, poor: 300 },
+  tti: { good: 3800, poor: 7300 },
   domContentLoaded: { good: 2000, poor: 4000 },
   load: { good: 3000, poor: 6000 }
 };
@@ -16,9 +18,11 @@ const NETWORK_THROTTLING = {
   '2G': { download: 280 * 1024 / 8, upload: 256 * 1024 / 8, latency: 300 }
 };
 
-// Helper function to format milliseconds
+// Enhanced helper function to format milliseconds with better precision
 function formatTime(ms) {
-  return ms < 1000 ? `${ms.toFixed(1)}ms` : `${(ms/1000).toFixed(2)}s`;
+  if (ms < 1) return '< 1ms';
+  if (ms < 1000) return `${ms.toFixed(1)}ms`;
+  return `${(ms/1000).toFixed(2)}s`;
 }
 
 // Helper function to format bytes
@@ -30,80 +34,137 @@ function formatBytes(bytes) {
   return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
 }
 
-// Helper function to determine performance rating
+// Enhanced helper function to determine performance rating with better thresholds
 function getRating(value, threshold) {
   if (value <= threshold.good) return 'good';
   if (value <= threshold.poor) return 'warning';
   return 'poor';
 }
 
-// Helper function to create metric element with appropriate icon
-function createMetricElement(name, value, threshold) {
+// Enhanced helper function to create metric element with appropriate icon and better styling
+function createMetricElement(name, value, threshold, unit = '') {
   const rating = getRating(value, threshold);
+  const displayValue = unit ? `${formatTime(value)} ${unit}` : formatTime(value);
   return `
     <div class="metric">
-      <span class="metric-name">${name}</span>
-      <span class="metric-value ${rating}">${formatTime(value)}</span>
+      <span class="metric-name">
+        <span class="metric-icon ${rating}">●</span>
+        ${name}
+      </span>
+      <span class="metric-value ${rating}">${displayValue}</span>
     </div>
   `;
 }
 
-// Helper function to extract domain from URL
+// Helper function to extract domain from URL with better error handling
 function extractDomain(url) {
   try {
     return new URL(url).hostname;
   } catch (e) {
-    return url;
+    console.warn('Failed to extract domain from URL:', url, e);
+    return url.split('/')[0] || 'unknown';
   }
 }
 
-// Helper function to determine if resource is third-party
+// Helper function to determine if resource is third-party with better validation
 function isThirdParty(resource, currentDomain) {
   try {
+    if (!resource.name || !currentDomain) return false;
     const resourceDomain = new URL(resource.name).hostname;
     return resourceDomain !== currentDomain && !resourceDomain.endsWith(`.${currentDomain}`);
   } catch (e) {
+    console.warn('Failed to determine if resource is third-party:', resource.name, e);
     return false;
   }
 }
 
-// Helper function to generate recommendations
+// Enhanced helper function to generate recommendations with more specific advice
 function generateRecommendations(metrics) {
   const recommendations = [];
   
   if (metrics.ttfb > THRESHOLDS.ttfb.good) {
-    recommendations.push('Consider improving server response time through caching or server optimization');
+    recommendations.push({
+      priority: 'high',
+      category: 'server',
+      text: 'Consider improving server response time through caching, CDN, or server optimization'
+    });
   }
   
   if (metrics.fcp > THRESHOLDS.fcp.good) {
-    recommendations.push('Optimize critical rendering path by reducing render-blocking resources');
+    recommendations.push({
+      priority: 'high',
+      category: 'rendering',
+      text: 'Optimize critical rendering path by reducing render-blocking resources and inline critical CSS'
+    });
   }
   
   if (metrics.lcp > THRESHOLDS.lcp.good) {
-    recommendations.push('Improve Largest Contentful Paint by optimizing largest image or text block');
+    recommendations.push({
+      priority: 'high',
+      category: 'content',
+      text: 'Improve Largest Contentful Paint by optimizing images, using next-gen formats, and implementing lazy loading'
+    });
+  }
+
+  if (metrics.fid > THRESHOLDS.fid.good) {
+    recommendations.push({
+      priority: 'medium',
+      category: 'interactivity',
+      text: 'Reduce JavaScript execution time and implement code splitting to improve interactivity'
+    });
+  }
+
+  if (metrics.cls > 0.1) {
+    recommendations.push({
+      priority: 'medium',
+      category: 'layout',
+      text: 'Prevent layout shifts by setting explicit dimensions for images and avoiding dynamic content insertion'
+    });
   }
   
   if (metrics.resourceCount > 50) {
-    recommendations.push('High number of resource requests. Consider bundling or reducing external resources');
+    recommendations.push({
+      priority: 'medium',
+      category: 'resources',
+      text: 'High number of resource requests. Consider bundling, using HTTP/2, and reducing external resources'
+    });
   }
   
   if (metrics.totalResourceSize > 5 * 1024 * 1024) {
-    recommendations.push('Large total resource size. Consider optimizing images and implementing code splitting');
+    recommendations.push({
+      priority: 'medium',
+      category: 'size',
+      text: 'Large total resource size. Consider optimizing images, implementing code splitting, and using compression'
+    });
   }
   
   if (metrics.thirdPartySize > metrics.totalResourceSize * 0.4) {
-    recommendations.push('Third-party resources account for a significant portion of your page size. Consider reducing third-party dependencies');
+    recommendations.push({
+      priority: 'low',
+      category: 'third-party',
+      text: 'Third-party resources account for a significant portion of your page size. Consider reducing third-party dependencies'
+    });
   }
   
   if (metrics.jsSize > 1 * 1024 * 1024) {
-    recommendations.push('JavaScript size is large. Consider code splitting and lazy loading techniques');
+    recommendations.push({
+      priority: 'medium',
+      category: 'javascript',
+      text: 'JavaScript size is large. Consider code splitting, tree shaking, and lazy loading techniques'
+    });
   }
   
   if (metrics.cssSize > 200 * 1024) {
-    recommendations.push('CSS size is large. Consider removing unused CSS and optimizing stylesheets');
+    recommendations.push({
+      priority: 'low',
+      category: 'css',
+      text: 'CSS size is large. Consider removing unused CSS, optimizing stylesheets, and using CSS-in-JS'
+    });
   }
-  
-  return recommendations;
+
+  // Sort by priority (high, medium, low)
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  return recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 }
 
 // Export results to JSON
@@ -584,7 +645,7 @@ async function runAnalysis() {
   const recommendations = generateRecommendations(metrics);
   if (recommendations.length > 0) {
     recommendationsEl.innerHTML = recommendations
-      .map(rec => `<div class="recommendation">${rec}</div>`)
+      .map(rec => `<div class="recommendation">${rec.text}</div>`)
       .join('');
   } else {
     recommendationsEl.innerHTML = '<div style="padding: 16px; text-align: center;">No recommendations - great job!</div>';
