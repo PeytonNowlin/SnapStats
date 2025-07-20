@@ -939,16 +939,72 @@ document.addEventListener('DOMContentLoaded', function() {
     console.error('Error initializing history chart:', e);
   }
   
-  // Add tab click handlers
+  // Add tab click handlers and keyboard navigation
   document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
-      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      button.classList.add('active');
-      document.getElementById(button.dataset.tab).classList.add('active');
+      switchTab(button.dataset.tab);
+    });
+  });
+  
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case '1':
+          e.preventDefault();
+          switchTab('metrics');
+          break;
+        case '2':
+          e.preventDefault();
+          switchTab('waterfall');
+          break;
+        case '3':
+          e.preventDefault();
+          switchTab('network');
+          break;
+        case '4':
+          e.preventDefault();
+          switchTab('third-party');
+          break;
+        case '5':
+          e.preventDefault();
+          switchTab('accessibility');
+          break;
+        case '6':
+          e.preventDefault();
+          switchTab('history');
+          break;
+        case '7':
+          e.preventDefault();
+          switchTab('settings');
+          break;
+      }
+    }
+    
+    // Space or Enter to run analysis
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      const runButton = document.getElementById('run');
+      if (!runButton.disabled) {
+        runButton.click();
+      }
+    }
+  });
+  
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(tabName);
+    
+    if (activeButton && activeContent) {
+      activeButton.classList.add('active');
+      activeContent.classList.add('active');
+    }
       
       // Show history data when tab is clicked
-      if (button.dataset.tab === 'history') {
+      if (tabName === 'history') {
         try {
           const data = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
           if (Array.isArray(data) && data.length > 0) {
@@ -970,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', function() {
           console.error('Error displaying history on tab click:', e);
         }
       }
-    });
+    }
   });
   
   // Add settings change event listeners
@@ -997,4 +1053,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-  
