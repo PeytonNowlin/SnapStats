@@ -683,6 +683,25 @@ async function runAnalysis() {
         }
       }).observe({ type: 'layout-shift', buffered: true });
       
+      // Get FID (First Input Delay)
+      let fid = 0;
+      try {
+        const fidObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          for (const entry of entries) {
+            if (entry.processingStart && entry.startTime) {
+              const delay = entry.processingStart - entry.startTime;
+              if (delay > fid) {
+                fid = delay;
+              }
+            }
+          }
+        });
+        fidObserver.observe({ type: 'first-input', buffered: true });
+      } catch (e) {
+        console.warn('FID observer failed:', e);
+      }
+      
       // Get INP using PerformanceObserver (Next Input Delay - newer metric)
       let inp = 0;
       new PerformanceObserver((list) => {
@@ -697,6 +716,7 @@ async function runAnalysis() {
         ttfb: nav ? nav.responseStart : (timing.responseStart - timing.requestStart),
         fcp: paints.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
         lcp: lcp,
+        fid: fid,
         cls: cls,
         inp: inp,
         domContentLoaded: nav ? nav.domContentLoadedEventEnd : (timing.domContentLoadedEventEnd - timing.navigationStart),
@@ -707,6 +727,7 @@ async function runAnalysis() {
       if (metrics.ttfb <= 0) metrics.ttfb = 100; 
       if (metrics.fcp <= 0) metrics.fcp = 1000;
       if (metrics.lcp <= 0) metrics.lcp = 2000;
+      if (metrics.fid <= 0) metrics.fid = 100;
       if (metrics.domContentLoaded <= 0) metrics.domContentLoaded = 1500;
       if (metrics.load <= 0) metrics.load = 2500;
 
@@ -787,6 +808,7 @@ async function runAnalysis() {
     ${createMetricElement('Time to First Byte', metrics.ttfb, THRESHOLDS.ttfb)}
     ${createMetricElement('First Contentful Paint', metrics.fcp, THRESHOLDS.fcp)}
     ${createMetricElement('Largest Contentful Paint', metrics.lcp, THRESHOLDS.lcp)}
+    ${createMetricElement('First Input Delay', metrics.fid, THRESHOLDS.fid)}
     ${metrics.inp ? `<div class="metric">
       <span class="metric-name">Interaction to Next Paint</span>
       <span class="metric-value">${formatTime(metrics.inp)}</span>
