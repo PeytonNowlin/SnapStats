@@ -1,5 +1,5 @@
 @echo off
-echo Packaging Performance Insights extension...
+echo Packaging SnapStats extension...
 
 REM Create build directory
 if not exist build mkdir build
@@ -16,7 +16,7 @@ copy PRIVACY.md build\
 
 REM Create zip file
 echo Creating zip archive...
-powershell Compress-Archive -Path build\* -DestinationPath performance-insights.zip -Force
+powershell Compress-Archive -Path build\* -DestinationPath snapstats.zip -Force
 
-echo Package created: performance-insights.zip
+echo Package created: snapstats.zip
 echo You can now upload this file to the Chrome Web Store Developer Dashboard. 
