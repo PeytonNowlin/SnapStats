@@ -445,8 +445,8 @@ async function runAnalysis() {
     throw new Error('No active tab found');
   }
 
-  if (!tab.url || tab.url.startsWith('chrome://')) {
-    throw new Error('Cannot analyze this page type');
+  if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+    throw new Error('Cannot analyze this page type. Please navigate to a regular website.');
   }
   
   // Get current settings

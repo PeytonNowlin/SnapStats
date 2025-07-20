@@ -216,21 +216,30 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      font-weight: 500;
+    }
+    
+    .metric-icon {
+      font-size: 8px;
+      margin-right: 4px;
     }
     
     .metric-value {
-      font-weight: 500;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 6px;
       background: var(--light-bg);
+      font-size: 13px;
+      min-width: 60px;
+      justify-content: center;
     }
     
-    .good { color: var(--success); background: rgba(85, 239, 196, 0.1); }
-    .warning { color: var(--warning); background: rgba(253, 203, 110, 0.1); }
-    .poor { color: var(--error); background: rgba(255, 118, 117, 0.1); }
+    .good { color: var(--success); background: rgba(85, 239, 196, 0.15); border: 1px solid rgba(85, 239, 196, 0.3); }
+    .warning { color: var(--warning); background: rgba(253, 203, 110, 0.15); border: 1px solid rgba(253, 203, 110, 0.3); }
+    .poor { color: var(--error); background: rgba(255, 118, 117, 0.15); border: 1px solid rgba(255, 118, 117, 0.3); }
     
     .mini-chart {
       height: 180px;
@@ -412,10 +421,61 @@
     .recommendation {
       background: rgba(255, 125, 171, 0.05);
       border-left: 3px solid var(--secondary-color);
-      padding: 12px;
-      margin-bottom: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
       font-size: 14px;
       border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      color: var(--dark-text);
+      transition: all 0.2s ease;
+    }
+    
+    .recommendation:hover {
+      background: rgba(255, 125, 171, 0.08);
+      transform: translateX(2px);
+    }
+    
+    .recommendation-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    
+    .priority-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .priority-badge.high {
+      background: rgba(255, 118, 117, 0.2);
+      color: var(--error);
+    }
+    
+    .priority-badge.medium {
+      background: rgba(253, 203, 110, 0.2);
+      color: var(--warning);
+    }
+    
+    .priority-badge.low {
+      background: rgba(85, 239, 196, 0.2);
+      color: var(--success);
+    }
+    
+    .category-badge {
+      font-size: 11px;
+      color: var(--medium-text);
+      background: var(--light-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: capitalize;
+    }
+    
+    .recommendation-text {
+      line-height: 1.4;
       color: var(--dark-text);
     }
     
@@ -500,6 +560,7 @@
         <button class="tab-button" data-tab="waterfall">Waterfall</button>
         <button class="tab-button" data-tab="network">Resources</button>
         <button class="tab-button" data-tab="third-party">3rd Party</button>
+        <button class="tab-button" data-tab="accessibility">Accessibility</button>
         <button class="tab-button" data-tab="history">History</button>
         <button class="tab-button" data-tab="settings">Settings</button>
       </div>
@@ -559,6 +620,19 @@
           <div class="card-header">Third-Party Resources</div>
           <div class="card-content">
             <div id="thirdPartyResources"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="accessibility" class="tab-content">
+        <div class="card">
+          <div class="card-header">Accessibility Analysis</div>
+          <div class="card-content">
+            <div id="accessibilityResults">
+              <div style="padding: 20px; text-align: center; color: var(--medium-text);">
+                Run an analysis to see accessibility insights
+              </div>
+            </div>
           </div>
         </div>
       </div>
