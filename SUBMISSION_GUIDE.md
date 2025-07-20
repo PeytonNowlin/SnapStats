@@ -7,7 +7,7 @@
 - [x] Version: 1.0.0
 - [x] Description: Completed in `store-description.txt`
 - [x] Icons: All sizes present (16x16, 32x32, 48x48, 128x128)
-- [x] Developer information: Peyton Nowlin (peytonn98@gmail.com)
+- [x] Developer information: Peyton Nowlin (peyton@teamnowlin.com)
 - [x] Privacy policy: `PRIVACY.md`
 - [x] Extension ZIP package: `snapstats.zip`
 
@@ -32,7 +32,7 @@
 
 ### Step 1: Developer Account Setup
 1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
-2. Sign in with your Google account (peytonn98@gmail.com)
+2. Sign in with your Google account (peyton@teamnowlin.com)
 3. Pay the one-time $5 developer registration fee (if not already paid)
 
 ### Step 2: Upload Extension
@@ -74,7 +74,7 @@
 
 ### Expected Timeline
 - **Review time:** 1-3 business days
-- **Email notifications:** Check peytonn98@gmail.com regularly
+- **Email notifications:** Check peyton@teamnowlin.com regularly
 
 ### Possible Review Outcomes
 - **Approved:** Extension will be live on Chrome Web Store
