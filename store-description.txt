@@ -33,5 +33,4 @@ Privacy-focused: No data is sent to external servers, and no tracking or analyti
 
 Permissions:
 • activeTab: To analyze the current tab (only when you click "Run Audit")
-• scripting: To run performance measurement code
-• storage: To save performance history locally on your device 
+• scripting: To run performance measurement code 

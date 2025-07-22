@@ -69,7 +69,6 @@
 - **Permissions justification:** 
   - `activeTab`: To analyze the current tab's performance
   - `scripting`: To run performance measurement code
-  - `storage`: To save performance history locally
 
 ### Step 6: Submit for Review
 1. Review all information

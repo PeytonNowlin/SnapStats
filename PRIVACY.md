@@ -14,7 +14,7 @@ SnapStats collects the following information:
 - **Resource Information**: Information about resources loaded by the current page is collected, including file names, types, sizes, and load times.
 - **Historical Data**: The extension stores your previous performance measurement data locally in your browser's storage.
 
-All data collected by SnapStats is stored **locally** on your device using Chrome's storage API. We do not transmit any data to external servers, and we do not use any tracking or analytics services.
+All data collected by SnapStats is stored **locally** on your device using the browser's localStorage API. We do not transmit any data to external servers, and we do not use any tracking or analytics services.
 
 ## Permissions
 
@@ -22,7 +22,6 @@ The extension requires the following permissions:
 
 - **activeTab**: To access and analyze the current tab's performance metrics
 - **scripting**: To run performance measurement scripts on the current page
-- **storage**: To store historical performance data locally
 
 ## Data Sharing
 

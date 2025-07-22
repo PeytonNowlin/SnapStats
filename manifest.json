@@ -5,9 +5,7 @@
     "description": "Instantly analyze website performance metrics with beautiful visualizations. Track Core Web Vitals and get actionable insights.",
     "permissions": [
       "activeTab",
-      "scripting",
-      "storage",
-      "downloads"
+      "scripting"
     ],
     "action": {
       "default_popup": "popup.html",
