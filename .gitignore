@@ -170,7 +170,7 @@ jspm_packages/
 *.crx
 *.pem
 *.zip
-!snapstats.zip
+!snapstats-fixed.zip
 
 # Generated promotional images (can be regenerated)
 promotional-images/

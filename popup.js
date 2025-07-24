@@ -1,4 +1,14 @@
-// popup.js
+/**
+ * SnapStats Chrome Extension
+ * 
+ * A Chrome extension for analyzing website performance metrics and Core Web Vitals.
+ * Provides real-time performance analysis, resource monitoring, and actionable recommendations.
+ * 
+ * @author Peyton Nowlin <peyton@teamnowlin.com>
+ * @version 1.0.0
+ * @license MIT
+ */
+
 // Enhanced performance thresholds (in milliseconds)
 const THRESHOLDS = {
   ttfb: { good: 100, poor: 300 },

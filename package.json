@@ -1,7 +1,21 @@
 {
-  "name": "performance-insights",
+  "name": "snapstats",
   "version": "1.0.0",
-  "private": true,
+  "description": "A Chrome extension for analyzing website performance metrics and Core Web Vitals",
+  "author": "Peyton Nowlin <peyton@teamnowlin.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PeytonNowlin/snapstats.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "performance",
+    "web-vitals",
+    "lighthouse",
+    "seo",
+    "web-development"
+  ],
   "scripts": {
     "generate-icons": "node generate-icons.js",
     "generate-promotional": "node generate-promotional-images.js",
