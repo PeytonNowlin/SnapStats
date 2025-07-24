@@ -86,7 +86,7 @@ This extension only runs when explicitly activated and does not collect any pers
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started, development setup, and submission process.
 
 ## 📄 License
 
