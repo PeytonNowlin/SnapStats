@@ -58,19 +58,33 @@ function sanitizeHTML(str) {
   return div.innerHTML;
 }
 
+// Metric tooltips with explanations
+const METRIC_TOOLTIPS = {
+  'Time to First Byte': 'Time from navigation start to when the first byte of the response is received from the server. Lower is better.',
+  'First Contentful Paint': 'Time when the browser renders the first bit of content (text, image, etc.). Target: < 1.8s',
+  'Largest Contentful Paint': 'Time when the largest content element becomes visible. Target: < 2.5s',
+  'First Input Delay': 'Time from when a user first interacts with your page to when the browser responds. Target: < 100ms',
+  'Cumulative Layout Shift': 'Measures visual stability - how much elements move around. Target: < 0.1',
+  'DOM Content Loaded': 'Time when the HTML document has been completely loaded and parsed',
+  'Page Load Complete': 'Time when the page and all resources have finished loading'
+};
+
 // Enhanced helper function to create metric element with appropriate icon and better styling
 function createMetricElement(name, value, threshold, unit = '') {
   const rating = getRating(value, threshold);
   const displayValue = unit ? `${formatTime(value)} ${unit}` : formatTime(value);
   const sanitizedName = sanitizeHTML(name);
   const sanitizedDisplayValue = sanitizeHTML(displayValue);
+  const tooltip = METRIC_TOOLTIPS[name] || '';
+  
   return `
     <div class="metric">
-      <span class="metric-name">
+      <span class="metric-name" ${tooltip ? `title="${sanitizeHTML(tooltip)}"` : ''}>
         <span class="metric-icon ${rating}">●</span>
         ${sanitizedName}
+        ${tooltip ? '<span style="opacity: 0.5; margin-left: 4px; cursor: help;">ℹ️</span>' : ''}
       </span>
-      <span class="metric-value ${rating}">${sanitizedDisplayValue}</span>
+      <span class="metric-value ${rating}" title="${rating === 'good' ? 'Good performance' : rating === 'warning' ? 'Needs improvement' : 'Poor performance'}">${sanitizedDisplayValue}</span>
     </div>
   `;
 }
@@ -686,12 +700,45 @@ function initDOMCache() {
   DOM_CACHE.exportCSV = document.getElementById('exportCSV');
 }
 
+// Show detailed progress during analysis
+function updateProgressIndicator(step, total, message) {
+  const progressPercent = Math.round((step / total) * 100);
+  updateStatus(`${message} (${step}/${total})`, true);
+  
+  // Update run button with progress
+  const runButton = DOM_CACHE.runButton || document.getElementById('run');
+  if (runButton) {
+    runButton.textContent = `${progressPercent}%`;
+    runButton.style.background = `linear-gradient(90deg, var(--primary-color) ${progressPercent}%, rgba(255,255,255,0.8) ${progressPercent}%)`;
+  }
+}
+
+// Reset run button to normal state
+function resetRunButton() {
+  const runButton = DOM_CACHE.runButton || document.getElementById('run');
+  if (runButton) {
+    runButton.textContent = 'Run Analysis';
+    runButton.style.background = '';
+  }
+}
+
+// Show success notification
+function showSuccessNotification(message) {
+  const statusEl = DOM_CACHE.status || document.getElementById('status');
+  statusEl.innerHTML = `<div style="color: var(--success); display: flex; align-items: center; justify-content: center; gap: 8px;"><span style="font-size: 16px;">✅</span> ${message}</div>`;
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    statusEl.innerHTML = '';
+  }, 3000);
+}
+
 // Enhanced main analysis function with better error handling
 async function runAnalysis() {
   const resultsEl = DOM_CACHE.results || document.getElementById('results');
   const recommendationsEl = DOM_CACHE.recommendations || document.getElementById('recommendations');
   
-  resultsEl.innerHTML = '';
+  resultsEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--medium-text);">Running analysis...</div>';
   recommendationsEl.innerHTML = '';
 
   try {
@@ -877,11 +924,14 @@ async function runAnalysis() {
     args: [settings]
   });
 
+  updateProgressIndicator(4, 6, 'Processing performance data');
   const metrics = injected[0].result;
   
   if (!metrics) {
-    throw new Error('No performance data received');
+    throw new Error('No performance data received. The page may still be loading or have JavaScript errors.');
   }
+  
+  updateProgressIndicator(5, 6, 'Generating insights');
   
   // Save metrics for export
   try {
@@ -972,24 +1022,44 @@ async function runAnalysis() {
   // Update accessibility analysis
   updateAccessibilityAnalysis(metrics);
   
-  // Update status
-  updateStatus('Analysis complete! 🚀');
-  clearStatus();
+  updateProgressIndicator(6, 6, 'Finalizing results');
+  
+  // Show success notification
+  resetRunButton();
+  showSuccessNotification('Analysis complete! Found ' + (metrics.resources ? metrics.resources.length : 0) + ' resources');
   
   return metrics;
   
   } catch (error) {
     console.error('Analysis error:', error);
-    updateStatus(`Error: ${error.message}`, false);
+    resetRunButton();
     
-    // Show user-friendly error message
+    // Show detailed error with helpful suggestions
+    const errorSuggestions = {
+      'No active tab found': 'Please make sure you have a browser tab open and try again.',
+      'Cannot analyze': 'Try navigating to a regular website (like google.com) and run the analysis.',
+      'No performance data': 'The page might still be loading. Wait a few seconds and try again.',
+      'Failed to analyze': 'Try refreshing the target page and running the analysis again.'
+    };
+    
+    let suggestion = 'Try refreshing the page and running the analysis again.';
+    for (const [key, value] of Object.entries(errorSuggestions)) {
+      if (error.message.includes(key)) {
+        suggestion = value;
+        break;
+      }
+    }
+    
+    updateStatus(`❌ ${error.message}`, false);
+    
+    // Show enhanced error message
     resultsEl.innerHTML = `
-      <div style="padding: 20px; text-align: center; color: var(--error);">
-        <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
-        <div style="font-weight: 600; margin-bottom: 8px;">Analysis Failed</div>
-        <div style="font-size: 14px; color: var(--medium-text);">${error.message}</div>
-        <div style="margin-top: 12px; font-size: 12px; color: var(--light-text);">
-          Try refreshing the page and running the analysis again.
+      <div style="padding: 20px; text-align: center; color: var(--error); border: 1px solid rgba(255, 118, 117, 0.2); border-radius: var(--border-radius); background: rgba(255, 118, 117, 0.05);">
+        <div style="font-size: 24px; margin-bottom: 12px;">⚠️</div>
+        <div style="font-weight: 600; margin-bottom: 8px; color: var(--error);">Analysis Failed</div>
+        <div style="font-size: 14px; color: var(--dark-text); margin-bottom: 12px;">${sanitizeHTML(error.message)}</div>
+        <div style="font-size: 13px; color: var(--medium-text); padding: 12px; background: white; border-radius: 6px; border-left: 3px solid var(--warning);">
+          💡 <strong>Suggestion:</strong> ${sanitizeHTML(suggestion)}
         </div>
       </div>
     `;
@@ -1028,14 +1098,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const runButton = DOM_CACHE.runButton || document.getElementById('run');
   runButton.addEventListener('click', async () => {
     runButton.disabled = true;
-    updateStatus('Analyzing performance...', true);
+    runButton.style.cursor = 'not-allowed';
     try {
       await runAnalysis();
     } catch (error) {
       console.error('Analysis error:', error);
-      updateStatus(`Error: ${error.message}`);
     } finally {
       runButton.disabled = false;
+      runButton.style.cursor = 'pointer';
+      resetRunButton();
     }
   });
   
@@ -1061,15 +1132,54 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Add tab click handlers and keyboard navigation
-  document.querySelectorAll('.tab-button').forEach(button => {
+  document.querySelectorAll('.tab-button').forEach((button, index) => {
     button.addEventListener('click', () => {
       switchTab(button.dataset.tab);
     });
+    
+    // Add keyboard navigation for tabs
+    button.addEventListener('keydown', (e) => {
+      const buttons = Array.from(document.querySelectorAll('.tab-button'));
+      const currentIndex = buttons.indexOf(button);
+      
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          const nextIndex = (currentIndex + 1) % buttons.length;
+          switchTab(buttons[nextIndex].dataset.tab);
+          break;
+        
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+          switchTab(buttons[prevIndex].dataset.tab);
+          break;
+        
+        case 'Home':
+          e.preventDefault();
+          switchTab(buttons[0].dataset.tab);
+          break;
+        
+        case 'End':
+          e.preventDefault();
+          switchTab(buttons[buttons.length - 1].dataset.tab);
+          break;
+      }
+    });
   });
   
-  // Function to switch tabs
+  // Function to switch tabs with accessibility support
   function switchTab(tabName) {
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    // Update tab buttons
+    document.querySelectorAll('.tab-button').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+      b.setAttribute('tabindex', '-1');
+    });
+    
+    // Update tab content
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
@@ -1077,6 +1187,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (activeButton && activeContent) {
       activeButton.classList.add('active');
+      activeButton.setAttribute('aria-selected', 'true');
+      activeButton.setAttribute('tabindex', '0');
+      activeButton.focus();
       activeContent.classList.add('active');
     }
       
@@ -1152,8 +1265,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     
-    // Space or Enter to run analysis
-    if (e.key === ' ' || e.key === 'Enter') {
+    // Space or Enter to run analysis when not focused on a form element
+    if ((e.key === ' ' || e.key === 'Enter') && !['INPUT', 'SELECT', 'BUTTON'].includes(e.target.tagName)) {
       e.preventDefault();
       const runButton = document.getElementById('run');
       if (!runButton.disabled) {

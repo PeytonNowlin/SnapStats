@@ -614,46 +614,46 @@
       </div>
       <div class="subtitle">Instant web performance insights</div>
     </div>
-    <button id="run">Run Analysis</button>
+    <button id="run" aria-label="Run performance analysis on current page" title="Analyze the current page's performance metrics">Run Analysis</button>
   </div>
   
   <div class="main-content">
-    <div id="status"></div>
+    <div id="status" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <div class="tab-container">
-      <div class="tab-buttons">
-        <button class="tab-button active" data-tab="metrics">Metrics</button>
-        <button class="tab-button" data-tab="waterfall">Waterfall</button>
-        <button class="tab-button" data-tab="network">Resources</button>
-        <button class="tab-button" data-tab="third-party">3rd Party</button>
-        <button class="tab-button" data-tab="accessibility">Accessibility</button>
-        <button class="tab-button" data-tab="history">History</button>
-        <button class="tab-button" data-tab="settings">Settings</button>
+      <div class="tab-buttons" role="tablist" aria-label="Analysis tabs">
+        <button class="tab-button active" data-tab="metrics" role="tab" aria-selected="true" aria-controls="metrics" id="tab-metrics" title="View core performance metrics (Ctrl+1)">Metrics</button>
+        <button class="tab-button" data-tab="waterfall" role="tab" aria-selected="false" aria-controls="waterfall" id="tab-waterfall" title="View resource loading timeline (Ctrl+2)">Waterfall</button>
+        <button class="tab-button" data-tab="network" role="tab" aria-selected="false" aria-controls="network" id="tab-network" title="View network resources table (Ctrl+3)">Resources</button>
+        <button class="tab-button" data-tab="third-party" role="tab" aria-selected="false" aria-controls="third-party" id="tab-third-party" title="View third-party resource analysis (Ctrl+4)">3rd Party</button>
+        <button class="tab-button" data-tab="accessibility" role="tab" aria-selected="false" aria-controls="accessibility" id="tab-accessibility" title="View accessibility analysis (Ctrl+5)">Accessibility</button>
+        <button class="tab-button" data-tab="history" role="tab" aria-selected="false" aria-controls="history" id="tab-history" title="View performance history trends (Ctrl+6)">History</button>
+        <button class="tab-button" data-tab="settings" role="tab" aria-selected="false" aria-controls="settings" id="tab-settings" title="Configure analysis settings (Ctrl+7)">Settings</button>
       </div>
 
-      <div id="metrics" class="tab-content active">
+      <div id="metrics" class="tab-content active" role="tabpanel" aria-labelledby="tab-metrics">
         <div class="card">
-          <div class="card-header">Performance Overview</div>
+          <div class="card-header">Performance Overview <span title="Core Web Vitals and performance metrics" style="cursor: help; opacity: 0.7;">ℹ️</span></div>
           <div class="card-content">
             <div id="results" class="results-container"></div>
           </div>
         </div>
         
         <div class="card">
-          <div class="card-header">Recommendations</div>
+          <div class="card-header">Recommendations <span title="Actionable suggestions to improve performance" style="cursor: help; opacity: 0.7;">💡</span></div>
           <div class="card-content">
             <div id="recommendations" class="recommendations"></div>
           </div>
         </div>
         
-        <div class="section-title">Export Results</div>
+        <div class="section-title">Export Results <span title="Download analysis data for further processing" style="cursor: help; opacity: 0.7;">💾</span></div>
         <div>
-          <button id="exportJSON" class="export-btn">JSON</button>
-          <button id="exportCSV" class="export-btn">CSV</button>
+          <button id="exportJSON" class="export-btn" title="Export data as JSON file" aria-label="Export results as JSON">JSON</button>
+          <button id="exportCSV" class="export-btn" title="Export data as CSV file" aria-label="Export results as CSV">CSV</button>
         </div>
       </div>
       
-      <div id="waterfall" class="tab-content">
+      <div id="waterfall" class="tab-content" role="tabpanel" aria-labelledby="tab-waterfall">
         <div class="card">
           <div class="card-header">Resource Load Timeline</div>
           <div class="card-content">
@@ -662,7 +662,7 @@
         </div>
       </div>
 
-      <div id="network" class="tab-content">
+      <div id="network" class="tab-content" role="tabpanel" aria-labelledby="tab-network">
         <div class="card">
           <div class="card-header">Network Requests</div>
           <div class="card-content">
@@ -681,7 +681,7 @@
         </div>
       </div>
       
-      <div id="third-party" class="tab-content">
+      <div id="third-party" class="tab-content" role="tabpanel" aria-labelledby="tab-third-party">
         <div class="card">
           <div class="card-header">Third-Party Resources</div>
           <div class="card-content">
@@ -690,7 +690,7 @@
         </div>
       </div>
       
-      <div id="accessibility" class="tab-content">
+      <div id="accessibility" class="tab-content" role="tabpanel" aria-labelledby="tab-accessibility">
         <div class="card">
           <div class="card-header">Accessibility Analysis</div>
           <div class="card-content">
@@ -703,7 +703,7 @@
         </div>
       </div>
 
-      <div id="history" class="tab-content">
+      <div id="history" class="tab-content" role="tabpanel" aria-labelledby="tab-history">
         <div class="card">
           <div class="card-header">Performance Trends</div>
           <div class="card-content" style="padding-bottom: 40px;">
@@ -711,42 +711,45 @@
             <div class="chart-help">
               Run multiple analyses to see performance trends over time
             </div>
-            <button id="clearHistory" class="export-btn" style="margin-top: 24px;">Clear History</button>
+            <button id="clearHistory" class="export-btn" style="margin-top: 24px;" title="Delete all stored performance history" aria-label="Clear performance history">Clear History</button>
           </div>
         </div>
       </div>
 
-      <div id="settings" class="tab-content">
+      <div id="settings" class="tab-content" role="tabpanel" aria-labelledby="tab-settings">
         <div class="card">
           <div class="card-header">Analysis Settings</div>
           <div class="card-content">
             <div class="form-group">
-              <label for="deviceType">Device Simulation</label>
-              <select id="deviceType">
+              <label for="deviceType">Device Simulation <span title="Simulate different device types for testing" style="cursor: help; opacity: 0.7;">ℹ️</span></label>
+              <select id="deviceType" aria-describedby="deviceType-help">
                 <option value="none">No Simulation</option>
                 <option value="mobile">Mobile Device</option>
                 <option value="tablet">Tablet</option>
               </select>
+              <div id="deviceType-help" style="font-size: 12px; color: var(--medium-text); margin-top: 4px;">Choose a device type to simulate during analysis</div>
             </div>
             
             <div class="form-group">
-              <label for="networkThrottle">Network Throttling</label>
-              <select id="networkThrottle">
+              <label for="networkThrottle">Network Throttling <span title="Simulate slower network conditions" style="cursor: help; opacity: 0.7;">ℹ️</span></label>
+              <select id="networkThrottle" aria-describedby="networkThrottle-help">
                 <option value="none">No Throttling</option>
-                <option value="fast3G">Fast 3G</option>
-                <option value="slow3G">Slow 3G</option>
-                <option value="2G">2G</option>
+                <option value="fast3G">Fast 3G (1.5 Mbps)</option>
+                <option value="slow3G">Slow 3G (780 Kbps)</option>
+                <option value="2G">2G (280 Kbps)</option>
               </select>
+              <div id="networkThrottle-help" style="font-size: 12px; color: var(--medium-text); margin-top: 4px;">Test performance under different network speeds</div>
             </div>
             
             <div class="form-group">
-              <label for="cpuThrottle">CPU Throttling</label>
-              <select id="cpuThrottle">
+              <label for="cpuThrottle">CPU Throttling <span title="Simulate slower devices" style="cursor: help; opacity: 0.7;">ℹ️</span></label>
+              <select id="cpuThrottle" aria-describedby="cpuThrottle-help">
                 <option value="1">No Throttling (1x)</option>
                 <option value="2">2x Slowdown</option>
                 <option value="4">4x Slowdown</option>
                 <option value="6">6x Slowdown</option>
               </select>
+              <div id="cpuThrottle-help" style="font-size: 12px; color: var(--medium-text); margin-top: 4px;">Simulate performance on slower devices</div>
             </div>
           </div>
         </div>
