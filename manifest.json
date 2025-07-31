@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "SnapStats",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "Instantly analyze website performance metrics with beautiful visualizations. Track Core Web Vitals and get actionable insights.",
     "permissions": [
       "activeTab",

@@ -51,17 +51,26 @@ function getRating(value, threshold) {
   return 'poor';
 }
 
+// Helper function to sanitize HTML content
+function sanitizeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // Enhanced helper function to create metric element with appropriate icon and better styling
 function createMetricElement(name, value, threshold, unit = '') {
   const rating = getRating(value, threshold);
   const displayValue = unit ? `${formatTime(value)} ${unit}` : formatTime(value);
+  const sanitizedName = sanitizeHTML(name);
+  const sanitizedDisplayValue = sanitizeHTML(displayValue);
   return `
     <div class="metric">
       <span class="metric-name">
         <span class="metric-icon ${rating}">●</span>
-        ${name}
+        ${sanitizedName}
       </span>
-      <span class="metric-value ${rating}">${displayValue}</span>
+      <span class="metric-value ${rating}">${sanitizedDisplayValue}</span>
     </div>
   `;
 }
@@ -226,45 +235,63 @@ function exportToCSV(metrics) {
 
 // Save settings to local storage
 function saveSettings() {
-  const settings = {
-    deviceType: document.getElementById('deviceType').value,
-    networkThrottle: document.getElementById('networkThrottle').value,
-    cpuThrottle: document.getElementById('cpuThrottle').value
-  };
-  localStorage.setItem('snapstatsSettings', JSON.stringify(settings));
+  try {
+    const settings = {
+      deviceType: (DOM_CACHE.deviceType || document.getElementById('deviceType')).value,
+      networkThrottle: (DOM_CACHE.networkThrottle || document.getElementById('networkThrottle')).value,
+      cpuThrottle: (DOM_CACHE.cpuThrottle || document.getElementById('cpuThrottle')).value
+    };
+    localStorage.setItem('snapstatsSettings', JSON.stringify(settings));
+  } catch (e) {
+    console.error('Error saving settings:', e);
+  }
 }
 
 // Load settings from local storage
 function loadSettings() {
-  const settings = JSON.parse(localStorage.getItem('snapstatsSettings') || '{}');
-  
-  if (settings.deviceType) {
-    document.getElementById('deviceType').value = settings.deviceType;
-  }
-  if (settings.networkThrottle) {
-    document.getElementById('networkThrottle').value = settings.networkThrottle;
-  }
-  if (settings.cpuThrottle) {
-    document.getElementById('cpuThrottle').value = settings.cpuThrottle;
+  try {
+    const settings = JSON.parse(localStorage.getItem('snapstatsSettings') || '{}');
+    
+    if (settings.deviceType) {
+      (DOM_CACHE.deviceType || document.getElementById('deviceType')).value = settings.deviceType;
+    }
+    if (settings.networkThrottle) {
+      (DOM_CACHE.networkThrottle || document.getElementById('networkThrottle')).value = settings.networkThrottle;
+    }
+    if (settings.cpuThrottle) {
+      (DOM_CACHE.cpuThrottle || document.getElementById('cpuThrottle')).value = settings.cpuThrottle;
+    }
+  } catch (e) {
+    console.error('Error loading settings:', e);
   }
 }
 
 // Update mini chart
 function updateHistoryChart(metrics) {
-  const chartEl = document.getElementById('historyChart');
+  const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
   
   // Get existing history or initialize new array
   let data = [];
   try {
-    data = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
-    
-    // Validate the data format
-    if (!Array.isArray(data)) {
-      data = [];
+    const storedData = localStorage.getItem('performanceHistory');
+    if (storedData) {
+      data = JSON.parse(storedData);
+      
+      // Validate the data format
+      if (!Array.isArray(data)) {
+        console.warn('Invalid history data format, resetting');
+        data = [];
+        localStorage.removeItem('performanceHistory');
+      }
     }
   } catch (e) {
     console.error('Error parsing history data:', e);
     data = [];
+    try {
+      localStorage.removeItem('performanceHistory');
+    } catch (removeError) {
+      console.error('Error removing corrupted history data:', removeError);
+    }
   }
   
   console.log('New metrics for history:', metrics);
@@ -284,10 +311,25 @@ function updateHistoryChart(metrics) {
   
   // Save updated data
   try {
+    const dataString = JSON.stringify(data);
+    if (dataString.length > 1024 * 1024) { // Limit to 1MB
+      console.warn('History data too large, keeping only last 3 entries');
+      data = data.slice(-3);
+    }
     localStorage.setItem('performanceHistory', JSON.stringify(data));
     console.log('Saved history data:', data);
   } catch (e) {
     console.error('Error saving history data:', e);
+    if (e.name === 'QuotaExceededError') {
+      try {
+        // Try to save with fewer entries
+        data = data.slice(-2);
+        localStorage.setItem('performanceHistory', JSON.stringify(data));
+        console.log('Saved reduced history data due to quota limit');
+      } catch (retryError) {
+        console.error('Failed to save even reduced history data:', retryError);
+      }
+    }
   }
   
   // Update the chart
@@ -298,7 +340,8 @@ function updateHistoryChart(metrics) {
 function clearHistoryData() {
   try {
     localStorage.removeItem('performanceHistory');
-    document.getElementById('historyChart').innerHTML = '<div style="padding: 20px; text-align: center;">History cleared</div>';
+    const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
+    chartEl.innerHTML = '<div style="padding: 20px; text-align: center;">History cleared</div>';
   } catch (e) {
     console.error('Error clearing history:', e);
   }
@@ -308,7 +351,7 @@ function clearHistoryData() {
 function updateHistoryChartFromData(data) {
   if (!data || !Array.isArray(data) || data.length === 0) return;
   
-  const chartEl = document.getElementById('historyChart');
+  const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
   
   // Clear previous chart
   chartEl.innerHTML = '';
@@ -360,7 +403,7 @@ function updateHistoryChartFromData(data) {
 
 // Update waterfall chart
 function updateWaterfallChart(resources) {
-  const waterfallEl = document.getElementById('waterfallChart');
+  const waterfallEl = DOM_CACHE.waterfallChart || document.getElementById('waterfallChart');
   
   // Sort resources by start time
   const sortedResources = resources.slice().sort((a, b) => a.startTime - b.startTime);
@@ -376,12 +419,12 @@ function updateWaterfallChart(resources) {
     
     return `
       <div class="waterfall-item">
-        <div class="waterfall-label" title="${resource.name}">${resource.name.split('/').pop()}</div>
-        <div style="margin-left: ${startPosition}px; display: flex;">
-          ${waitTime > 0 ? `<div class="waterfall-bar waterfall-bar-wait" style="width: ${waitTime}px;"></div>` : ''}
-          <div class="waterfall-bar" style="width: ${width - waitTime}px;"></div>
+        <div class="waterfall-label" title="${sanitizeHTML(resource.name || '')}">${sanitizeHTML(resource.name.split('/').pop() || 'unknown')}</div>
+        <div style="margin-left: ${Math.max(0, startPosition)}px; display: flex;">
+          ${waitTime > 0 ? `<div class="waterfall-bar waterfall-bar-wait" style="width: ${Math.max(0, waitTime)}px;"></div>` : ''}
+          <div class="waterfall-bar" style="width: ${Math.max(1, width - waitTime)}px;"></div>
         </div>
-        <div class="waterfall-time">${formatTime(resource.duration)}</div>
+        <div class="waterfall-time">${sanitizeHTML(formatTime(resource.duration || 0))}</div>
       </div>
     `;
   }).join('');
@@ -389,7 +432,7 @@ function updateWaterfallChart(resources) {
 
 // Update third-party resources analysis
 function updateThirdPartyAnalysis(resources, currentDomain) {
-  const thirdPartyEl = document.getElementById('thirdPartyResources');
+  const thirdPartyEl = DOM_CACHE.thirdPartyResources || document.getElementById('thirdPartyResources');
   
   // Identify third-party resources
   const thirdPartyResources = resources.filter(r => isThirdParty(r, currentDomain));
@@ -422,15 +465,15 @@ function updateThirdPartyAnalysis(resources, currentDomain) {
   
   thirdPartyEl.innerHTML = sortedDomains.map(domain => `
     <div class="third-party-item">
-      <div class="third-party-domain">${domain.domain} (${domain.count} requests)</div>
-      <div class="third-party-size">${formatBytes(domain.size)}</div>
+      <div class="third-party-domain">${sanitizeHTML(domain.domain)} (${domain.count} requests)</div>
+      <div class="third-party-size">${sanitizeHTML(formatBytes(domain.size))}</div>
     </div>
   `).join('');
 }
 
 // Update accessibility analysis
 function updateAccessibilityAnalysis(metrics) {
-  const accessibilityEl = document.getElementById('accessibilityResults');
+  const accessibilityEl = DOM_CACHE.accessibilityResults || document.getElementById('accessibilityResults');
   
   const accessibilityIssues = [];
   const accessibilityWarnings = [];
@@ -510,9 +553,9 @@ function updateAccessibilityAnalysis(metrics) {
         <h4 style="color: var(--error); margin-bottom: 12px;">🚨 Critical Issues (${accessibilityIssues.length})</h4>
         ${accessibilityIssues.map(issue => `
           <div style="background: rgba(255, 118, 117, 0.1); border-left: 3px solid var(--error); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--error); margin-bottom: 4px;">${issue.title}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+            <div style="font-weight: 600; color: var(--error); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -525,9 +568,9 @@ function updateAccessibilityAnalysis(metrics) {
         <h4 style="color: var(--warning); margin-bottom: 12px;">⚠️ Warnings (${accessibilityWarnings.length})</h4>
         ${accessibilityWarnings.map(issue => `
           <div style="background: rgba(253, 203, 110, 0.1); border-left: 3px solid var(--warning); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">${issue.title}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+            <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -540,9 +583,9 @@ function updateAccessibilityAnalysis(metrics) {
         <h4 style="color: var(--success); margin-bottom: 12px;">✅ Good Practices (${accessibilityGood.length})</h4>
         ${accessibilityGood.map(issue => `
           <div style="background: rgba(85, 239, 196, 0.1); border-left: 3px solid var(--success); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--success); margin-bottom: 4px;">${issue.title}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${issue.description}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${issue.impact}</div>
+            <div style="font-weight: 600; color: var(--success); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
+            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
+            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -558,13 +601,13 @@ function updateAccessibilityAnalysis(metrics) {
 
 // Update network table
 function updateNetworkTable(resources) {
-  const tbody = document.getElementById('networkResults');
+  const tbody = DOM_CACHE.networkResults || document.getElementById('networkResults');
   tbody.innerHTML = resources.map(resource => `
     <tr>
-      <td>${resource.name.split('/').pop()}</td>
-      <td>${resource.initiatorType}</td>
-      <td>${formatBytes(resource.transferSize)}</td>
-      <td>${formatTime(resource.duration)}</td>
+      <td>${sanitizeHTML(resource.name.split('/').pop() || 'unknown')}</td>
+      <td>${sanitizeHTML(resource.initiatorType || 'unknown')}</td>
+      <td>${sanitizeHTML(formatBytes(resource.transferSize || 0))}</td>
+      <td>${sanitizeHTML(formatTime(resource.duration || 0))}</td>
     </tr>
   `).join('');
 }
@@ -605,30 +648,68 @@ function getPerformanceGrade(score) {
   return { grade: 'F', color: 'var(--error)', emoji: '😞' };
 }
 
+// DOM element cache for performance
+const DOM_CACHE = {
+  results: null,
+  recommendations: null,
+  status: null,
+  historyChart: null,
+  waterfallChart: null,
+  thirdPartyResources: null,
+  accessibilityResults: null,
+  networkResults: null,
+  deviceType: null,
+  networkThrottle: null,
+  cpuThrottle: null,
+  runButton: null,
+  clearHistory: null,
+  exportJSON: null,
+  exportCSV: null
+};
+
+// Initialize DOM cache
+function initDOMCache() {
+  DOM_CACHE.results = document.getElementById('results');
+  DOM_CACHE.recommendations = document.getElementById('recommendations');
+  DOM_CACHE.status = document.getElementById('status');
+  DOM_CACHE.historyChart = document.getElementById('historyChart');
+  DOM_CACHE.waterfallChart = document.getElementById('waterfallChart');
+  DOM_CACHE.thirdPartyResources = document.getElementById('thirdPartyResources');
+  DOM_CACHE.accessibilityResults = document.getElementById('accessibilityResults');
+  DOM_CACHE.networkResults = document.getElementById('networkResults');
+  DOM_CACHE.deviceType = document.getElementById('deviceType');
+  DOM_CACHE.networkThrottle = document.getElementById('networkThrottle');
+  DOM_CACHE.cpuThrottle = document.getElementById('cpuThrottle');
+  DOM_CACHE.runButton = document.getElementById('run');
+  DOM_CACHE.clearHistory = document.getElementById('clearHistory');
+  DOM_CACHE.exportJSON = document.getElementById('exportJSON');
+  DOM_CACHE.exportCSV = document.getElementById('exportCSV');
+}
+
 // Enhanced main analysis function with better error handling
 async function runAnalysis() {
-  const resultsEl = document.getElementById('results');
-  const recommendationsEl = document.getElementById('recommendations');
+  const resultsEl = DOM_CACHE.results || document.getElementById('results');
+  const recommendationsEl = DOM_CACHE.recommendations || document.getElementById('recommendations');
   
   resultsEl.innerHTML = '';
   recommendationsEl.innerHTML = '';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  
-  if (!tab) {
-    throw new Error('No active tab found');
-  }
+    
+    if (!tab) {
+      throw new Error('No active tab found');
+    }
 
-  if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
-    throw new Error('Cannot analyze this page type. Please navigate to a regular website.');
-  }
+    if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+      throw new Error('Cannot analyze this page type. Please navigate to a regular website.');
+    }
   
   // Get current settings
   const settings = {
-    deviceType: document.getElementById('deviceType').value,
-    networkThrottle: document.getElementById('networkThrottle').value,
-    cpuThrottle: parseFloat(document.getElementById('cpuThrottle').value)
+    deviceType: (DOM_CACHE.deviceType || document.getElementById('deviceType')).value,
+    networkThrottle: (DOM_CACHE.networkThrottle || document.getElementById('networkThrottle')).value,
+    cpuThrottle: parseFloat((DOM_CACHE.cpuThrottle || document.getElementById('cpuThrottle')).value)
   };
 
   const injected = await chrome.scripting.executeScript({
@@ -733,13 +814,13 @@ async function runAnalysis() {
         load: nav ? nav.loadEventEnd : (timing.loadEventEnd - timing.navigationStart)
       };
 
-      // Ensure no zeros
-      if (metrics.ttfb <= 0) metrics.ttfb = 100; 
-      if (metrics.fcp <= 0) metrics.fcp = 1000;
-      if (metrics.lcp <= 0) metrics.lcp = 2000;
-      if (metrics.fid <= 0) metrics.fid = 100;
-      if (metrics.domContentLoaded <= 0) metrics.domContentLoaded = 1500;
-      if (metrics.load <= 0) metrics.load = 2500;
+      // Ensure realistic fallback values
+      if (metrics.ttfb <= 0) metrics.ttfb = Math.max(50, timing.responseStart - timing.requestStart || 50); 
+      if (metrics.fcp <= 0) metrics.fcp = Math.max(800, timing.domContentLoadedEventEnd - timing.navigationStart || 800);
+      if (metrics.lcp <= 0) metrics.lcp = Math.max(1200, timing.loadEventEnd - timing.navigationStart || 1200);
+      if (metrics.fid <= 0) metrics.fid = 50;
+      if (metrics.domContentLoaded <= 0) metrics.domContentLoaded = Math.max(800, timing.domContentLoadedEventEnd - timing.navigationStart || 800);
+      if (metrics.load <= 0) metrics.load = Math.max(1200, timing.loadEventEnd - timing.navigationStart || 1200);
 
       // Add resource timing data
       const resources = performance.getEntriesByType('resource');
@@ -803,7 +884,11 @@ async function runAnalysis() {
   }
   
   // Save metrics for export
-  localStorage.setItem('lastMetrics', JSON.stringify(metrics));
+  try {
+    localStorage.setItem('lastMetrics', JSON.stringify(metrics));
+  } catch (e) {
+    console.error('Error saving metrics for export:', e);
+  }
 
   // Calculate performance score first
   const score = calculatePerformanceScore(metrics);
@@ -916,7 +1001,7 @@ async function runAnalysis() {
 
 // Update the status message with loading animation
 function updateStatus(message, isLoading = false) {
-  const statusEl = document.getElementById('status');
+  const statusEl = DOM_CACHE.status || document.getElementById('status');
   if (isLoading) {
     statusEl.innerHTML = `<div class="loading"></div> ${message}`;
   } else {
@@ -933,11 +1018,14 @@ function clearStatus(delay = 2000) {
 
 // Initialize the run button event handler
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize DOM cache
+  initDOMCache();
+  
   // Add clear history button event listener
-  document.getElementById('clearHistory').addEventListener('click', clearHistoryData);
+  (DOM_CACHE.clearHistory || document.getElementById('clearHistory')).addEventListener('click', clearHistoryData);
   
   // Add loading animation to run button when clicked
-  const runButton = document.getElementById('run');
+  const runButton = DOM_CACHE.runButton || document.getElementById('run');
   runButton.addEventListener('click', async () => {
     runButton.disabled = true;
     updateStatus('Analyzing performance...', true);
@@ -956,12 +1044,20 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize history chart if data exists
   try {
-    const historyData = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
-    if (Array.isArray(historyData) && historyData.length > 0) {
-      updateHistoryChartFromData(historyData);
+    const storedHistory = localStorage.getItem('performanceHistory');
+    if (storedHistory) {
+      const historyData = JSON.parse(storedHistory);
+      if (Array.isArray(historyData) && historyData.length > 0) {
+        updateHistoryChartFromData(historyData);
+      }
     }
   } catch (e) {
     console.error('Error initializing history chart:', e);
+    try {
+      localStorage.removeItem('performanceHistory');
+    } catch (removeError) {
+      console.error('Error removing corrupted history data:', removeError);
+    }
   }
   
   // Add tab click handlers and keyboard navigation
@@ -987,12 +1083,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show history data when tab is clicked
     if (tabName === 'history') {
       try {
-        const data = JSON.parse(localStorage.getItem('performanceHistory') || '[]');
-        if (Array.isArray(data) && data.length > 0) {
-          updateHistoryChartFromData(data);
+        const storedHistory = localStorage.getItem('performanceHistory');
+        if (storedHistory) {
+          const data = JSON.parse(storedHistory);
+          if (Array.isArray(data) && data.length > 0) {
+            updateHistoryChartFromData(data);
+          } else {
+            const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
+            chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
+          }
         } else {
-          // Show a message if no history data
-          const chartEl = document.getElementById('historyChart');
+          const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
           chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
         }
         
@@ -1005,6 +1106,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
       } catch (e) {
         console.error('Error displaying history on tab click:', e);
+        try {
+          localStorage.removeItem('performanceHistory');
+          const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
+          chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">Error loading history data. Please try again.</div>';
+        } catch (removeError) {
+          console.error('Error cleaning up corrupted history:', removeError);
+        }
       }
     }
   }
@@ -1055,26 +1163,46 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Add settings change event listeners
-  document.getElementById('deviceType').addEventListener('change', saveSettings);
-  document.getElementById('networkThrottle').addEventListener('change', saveSettings);
-  document.getElementById('cpuThrottle').addEventListener('change', saveSettings);
+  (DOM_CACHE.deviceType || document.getElementById('deviceType')).addEventListener('change', saveSettings);
+  (DOM_CACHE.networkThrottle || document.getElementById('networkThrottle')).addEventListener('change', saveSettings);
+  (DOM_CACHE.cpuThrottle || document.getElementById('cpuThrottle')).addEventListener('change', saveSettings);
   
   // Add export button event listeners
-  document.getElementById('exportJSON').addEventListener('click', () => {
-    const currentMetrics = JSON.parse(localStorage.getItem('lastMetrics') || '{}');
-    if (Object.keys(currentMetrics).length > 0) {
-      exportToJSON(currentMetrics);
-    } else {
-      alert('No data to export. Please run an analysis first.');
+  (DOM_CACHE.exportJSON || document.getElementById('exportJSON')).addEventListener('click', () => {
+    try {
+      const storedMetrics = localStorage.getItem('lastMetrics');
+      if (storedMetrics) {
+        const currentMetrics = JSON.parse(storedMetrics);
+        if (Object.keys(currentMetrics).length > 0) {
+          exportToJSON(currentMetrics);
+        } else {
+          alert('No data to export. Please run an analysis first.');
+        }
+      } else {
+        alert('No data to export. Please run an analysis first.');
+      }
+    } catch (e) {
+      console.error('Error exporting JSON:', e);
+      alert('Error exporting data. Please try running an analysis again.');
     }
   });
   
-  document.getElementById('exportCSV').addEventListener('click', () => {
-    const currentMetrics = JSON.parse(localStorage.getItem('lastMetrics') || '{}');
-    if (Object.keys(currentMetrics).length > 0) {
-      exportToCSV(currentMetrics);
-    } else {
-      alert('No data to export. Please run an analysis first.');
+  (DOM_CACHE.exportCSV || document.getElementById('exportCSV')).addEventListener('click', () => {
+    try {
+      const storedMetrics = localStorage.getItem('lastMetrics');
+      if (storedMetrics) {
+        const currentMetrics = JSON.parse(storedMetrics);
+        if (Object.keys(currentMetrics).length > 0) {
+          exportToCSV(currentMetrics);
+        } else {
+          alert('No data to export. Please run an analysis first.');
+        }
+      } else {
+        alert('No data to export. Please run an analysis first.');
+      }
+    } catch (e) {
+      console.error('Error exporting CSV:', e);
+      alert('Error exporting data. Please try running an analysis again.');
     }
   });
 });
