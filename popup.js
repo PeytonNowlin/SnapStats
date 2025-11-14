@@ -355,7 +355,7 @@ function clearHistoryData() {
   try {
     localStorage.removeItem('performanceHistory');
     const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
-    chartEl.innerHTML = '<div style="padding: 20px; text-align: center;">History cleared</div>';
+    chartEl.innerHTML = '<div class="empty-state">History cleared</div>';
   } catch (e) {
     console.error('Error clearing history:', e);
   }
@@ -473,7 +473,7 @@ function updateThirdPartyAnalysis(resources, currentDomain) {
     .map(([domain, data]) => ({ domain, ...data }));
   
   if (sortedDomains.length === 0) {
-    thirdPartyEl.innerHTML = '<div style="padding: 20px; text-align: center;">No third-party resources detected</div>';
+    thirdPartyEl.innerHTML = '<div class="empty-state">No third-party resources detected</div>';
     return;
   }
   
@@ -563,13 +563,13 @@ function updateAccessibilityAnalysis(metrics) {
   
   if (accessibilityIssues.length > 0) {
     html += `
-      <div style="margin-bottom: 20px;">
+      <div class="accessibility-section">
         <h4 style="color: var(--error); margin-bottom: 12px;">🚨 Critical Issues (${accessibilityIssues.length})</h4>
         ${accessibilityIssues.map(issue => `
-          <div style="background: rgba(255, 118, 117, 0.1); border-left: 3px solid var(--error); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--error); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
+          <div class="accessibility-item error">
+            <div class="accessibility-title" style="color: var(--error);">${sanitizeHTML(issue.title)}</div>
+            <div class="accessibility-description">${sanitizeHTML(issue.description)}</div>
+            <div class="accessibility-impact">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -578,13 +578,13 @@ function updateAccessibilityAnalysis(metrics) {
   
   if (accessibilityWarnings.length > 0) {
     html += `
-      <div style="margin-bottom: 20px;">
+      <div class="accessibility-section">
         <h4 style="color: var(--warning); margin-bottom: 12px;">⚠️ Warnings (${accessibilityWarnings.length})</h4>
         ${accessibilityWarnings.map(issue => `
-          <div style="background: rgba(253, 203, 110, 0.1); border-left: 3px solid var(--warning); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
+          <div class="accessibility-item warning">
+            <div class="accessibility-title" style="color: var(--warning);">${sanitizeHTML(issue.title)}</div>
+            <div class="accessibility-description">${sanitizeHTML(issue.description)}</div>
+            <div class="accessibility-impact">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -593,13 +593,13 @@ function updateAccessibilityAnalysis(metrics) {
   
   if (accessibilityGood.length > 0) {
     html += `
-      <div style="margin-bottom: 20px;">
+      <div class="accessibility-section">
         <h4 style="color: var(--success); margin-bottom: 12px;">✅ Good Practices (${accessibilityGood.length})</h4>
         ${accessibilityGood.map(issue => `
-          <div style="background: rgba(85, 239, 196, 0.1); border-left: 3px solid var(--success); padding: 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0;">
-            <div style="font-weight: 600; color: var(--success); margin-bottom: 4px;">${sanitizeHTML(issue.title)}</div>
-            <div style="font-size: 13px; color: var(--dark-text); margin-bottom: 4px;">${sanitizeHTML(issue.description)}</div>
-            <div style="font-size: 11px; color: var(--medium-text);">Impact: ${sanitizeHTML(issue.impact)}</div>
+          <div class="accessibility-item success">
+            <div class="accessibility-title" style="color: var(--success);">${sanitizeHTML(issue.title)}</div>
+            <div class="accessibility-description">${sanitizeHTML(issue.description)}</div>
+            <div class="accessibility-impact">Impact: ${sanitizeHTML(issue.impact)}</div>
           </div>
         `).join('')}
       </div>
@@ -607,7 +607,7 @@ function updateAccessibilityAnalysis(metrics) {
   }
   
   if (accessibilityIssues.length === 0 && accessibilityWarnings.length === 0 && accessibilityGood.length === 0) {
-    html = '<div style="padding: 20px; text-align: center; color: var(--medium-text);">No accessibility data available</div>';
+    html = '<div class="empty-state">No accessibility data available</div>';
   }
   
   accessibilityEl.innerHTML = html;
@@ -738,7 +738,7 @@ async function runAnalysis() {
   const resultsEl = DOM_CACHE.results || document.getElementById('results');
   const recommendationsEl = DOM_CACHE.recommendations || document.getElementById('recommendations');
   
-  resultsEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--medium-text);">Running analysis...</div>';
+  resultsEl.innerHTML = '<div class="empty-state"><div class="loading"></div> Running analysis...</div>';
   recommendationsEl.innerHTML = '';
 
   try {
@@ -1003,7 +1003,7 @@ async function runAnalysis() {
       </div>`)
       .join('');
   } else {
-    recommendationsEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--success);">🎉 No recommendations - excellent performance!</div>';
+    recommendationsEl.innerHTML = '<div class="empty-state" style="color: var(--success);">🎉 No recommendations - excellent performance!</div>';
   }
   
   // Update history chart
@@ -1054,11 +1054,11 @@ async function runAnalysis() {
     
     // Show enhanced error message
     resultsEl.innerHTML = `
-      <div style="padding: 20px; text-align: center; color: var(--error); border: 1px solid rgba(255, 118, 117, 0.2); border-radius: var(--border-radius); background: rgba(255, 118, 117, 0.05);">
+      <div style="padding: 20px; text-align: center; color: var(--error); border: 1px solid var(--error); border-radius: 4px; background: rgba(239, 68, 68, 0.1);">
         <div style="font-size: 24px; margin-bottom: 12px;">⚠️</div>
         <div style="font-weight: 600; margin-bottom: 8px; color: var(--error);">Analysis Failed</div>
-        <div style="font-size: 14px; color: var(--dark-text); margin-bottom: 12px;">${sanitizeHTML(error.message)}</div>
-        <div style="font-size: 13px; color: var(--medium-text); padding: 12px; background: white; border-radius: 6px; border-left: 3px solid var(--warning);">
+        <div style="font-size: 14px; color: var(--text-primary); margin-bottom: 12px;">${sanitizeHTML(error.message)}</div>
+        <div style="font-size: 13px; color: var(--text-secondary); padding: 12px; background: var(--bg-elevated); border-radius: 4px; border-left: 3px solid var(--warning);">
           💡 <strong>Suggestion:</strong> ${sanitizeHTML(suggestion)}
         </div>
       </div>
@@ -1131,40 +1131,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Add tab click handlers and keyboard navigation
-  document.querySelectorAll('.tab-button').forEach((button, index) => {
-    button.addEventListener('click', () => {
-      switchTab(button.dataset.tab);
+  // Add navigation click handlers for sidebar
+  document.querySelectorAll('.nav-item').forEach((item, index) => {
+    item.addEventListener('click', () => {
+      switchTab(item.dataset.tab);
     });
     
-    // Add keyboard navigation for tabs
-    button.addEventListener('keydown', (e) => {
-      const buttons = Array.from(document.querySelectorAll('.tab-button'));
-      const currentIndex = buttons.indexOf(button);
+    // Add keyboard navigation
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        switchTab(item.dataset.tab);
+      }
+      
+      const items = Array.from(document.querySelectorAll('.nav-item'));
+      const currentIndex = items.indexOf(item);
       
       switch (e.key) {
-        case 'ArrowRight':
         case 'ArrowDown':
           e.preventDefault();
-          const nextIndex = (currentIndex + 1) % buttons.length;
-          switchTab(buttons[nextIndex].dataset.tab);
+          const nextIndex = (currentIndex + 1) % items.length;
+          items[nextIndex].focus();
           break;
         
-        case 'ArrowLeft':
         case 'ArrowUp':
           e.preventDefault();
-          const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-          switchTab(buttons[prevIndex].dataset.tab);
+          const prevIndex = (currentIndex - 1 + items.length) % items.length;
+          items[prevIndex].focus();
           break;
         
         case 'Home':
           e.preventDefault();
-          switchTab(buttons[0].dataset.tab);
+          items[0].focus();
           break;
         
         case 'End':
           e.preventDefault();
-          switchTab(buttons[buttons.length - 1].dataset.tab);
+          items[items.length - 1].focus();
           break;
       }
     });
@@ -1172,25 +1175,38 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Function to switch tabs with accessibility support
   function switchTab(tabName) {
-    // Update tab buttons
-    document.querySelectorAll('.tab-button').forEach(b => {
-      b.classList.remove('active');
-      b.setAttribute('aria-selected', 'false');
-      b.setAttribute('tabindex', '-1');
+    // Update navigation items
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
     });
     
     // Update tab content
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeNavItem = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
     const activeContent = document.getElementById(tabName);
     
-    if (activeButton && activeContent) {
-      activeButton.classList.add('active');
-      activeButton.setAttribute('aria-selected', 'true');
-      activeButton.setAttribute('tabindex', '0');
-      activeButton.focus();
+    if (activeNavItem && activeContent) {
+      activeNavItem.classList.add('active');
       activeContent.classList.add('active');
+      
+      // Update page title based on active tab
+      const pageTitleEl = document.getElementById('pageTitle');
+      const pageIconEl = document.querySelector('.page-icon');
+      const tabTitles = {
+        'metrics': { title: 'Performance Metrics', icon: '⚡' },
+        'waterfall': { title: 'Resource Waterfall', icon: '📊' },
+        'network': { title: 'Network Resources', icon: '🌐' },
+        'third-party': { title: 'Third-Party Analysis', icon: '📦' },
+        'accessibility': { title: 'Accessibility', icon: '♿' },
+        'history': { title: 'Performance History', icon: '📈' },
+        'settings': { title: 'Settings', icon: '⚙️' }
+      };
+      
+      if (tabTitles[tabName]) {
+        pageTitleEl.textContent = tabTitles[tabName].title;
+        pageIconEl.textContent = tabTitles[tabName].icon;
+      }
     }
       
     // Show history data when tab is clicked
@@ -1203,11 +1219,11 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHistoryChartFromData(data);
           } else {
             const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
-            chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
+            chartEl.innerHTML = '<div class="empty-state" style="display: flex; align-items: center; justify-content: center;">No history data yet. Run analyses to see performance trends.</div>';
           }
         } else {
           const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
-          chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">No history data yet. Run analyses to see performance trends.</div>';
+          chartEl.innerHTML = '<div class="empty-state" style="display: flex; align-items: center; justify-content: center;">No history data yet. Run analyses to see performance trends.</div>';
         }
         
         // Ensure the tab content is visible
@@ -1222,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
           localStorage.removeItem('performanceHistory');
           const chartEl = DOM_CACHE.historyChart || document.getElementById('historyChart');
-          chartEl.innerHTML = '<div style="padding: 20px; text-align: center; width: 100%;">Error loading history data. Please try again.</div>';
+          chartEl.innerHTML = '<div class="empty-state" style="display: flex; align-items: center; justify-content: center;">Error loading history data. Please try again.</div>';
         } catch (removeError) {
           console.error('Error cleaning up corrupted history:', removeError);
         }
@@ -1230,8 +1246,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Keyboard navigation
+  // Global keyboard navigation
   document.addEventListener('keydown', (e) => {
+    // Cmd/Ctrl + number shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case '1':
