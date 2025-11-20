@@ -1,36 +1,27 @@
-SnapStats - Analyze Website Performance
+SnapStats: The Operating System for Web Performance
 
-SnapStats helps developers and website owners measure, analyze, and improve website performance using key Core Web Vitals metrics.
+Transform raw telemetry into critical decision advantage. SnapStats empowers engineers to dissect, analyze, and optimize the digital infrastructure that powers user experience.
 
-✓ Measure Core Web Vitals:
-• Time to First Byte (TTFB)
-• First Contentful Paint (FCP)
-• Largest Contentful Paint (LCP)
-• Cumulative Layout Shift (CLS)
-• DOM Content Loaded time
-• Page load time
+In an era where milliseconds dictate engagement, visibility is the precursor to victory. SnapStats provides a comprehensive operational picture of your web application's performance, integrating Core Web Vitals with granular resource intelligence to expose hidden latencies and structural inefficiencies.
 
-✓ Analyze Page Resources:
-• Resource count and size analysis
-• Network request breakdowns
-• Resource loading times
+// VITAL TELEMETRY
+Capture high-fidelity signals across the performance spectrum. Monitor Time to First Byte (TTFB), Largest Contentful Paint (LCP), and Cumulative Layout Shift (CLS) with precision. Transform abstract metrics into a unified view of user experience health.
 
-✓ Get Actionable Insights:
-• Performance recommendations based on metrics
-• Color-coded performance indicators
-• Historical performance tracking
+// INFRASTRUCTURE RECONNAISSANCE
+Deconstruct the network layer. Analyze resource distribution, payload weight, and request cascades. Identify bottlenecks in the supply chain of your application's delivery.
 
-The extension runs only when you click "Run Audit" and all data is stored locally on your device. SnapStats helps you understand and improve your website's performance to enhance user experience and SEO ranking.
+// DECISION INTELLIGENCE
+Move beyond observation to action. SnapStats synthesizes performance data into actionable directives. Leverage color-coded thresholds and historical tracking to drive continuous optimization cycles and secure SEO dominance.
 
-Perfect for:
-• Web developers
-• Website owners
-• Performance analysts
-• SEO specialists
-• Anyone interested in optimizing web performance
+// SOVEREIGN ARCHITECTURE
+Security is foundational. SnapStats operates on a strictly local-first protocol. No external transmission. No third-party surveillance. Your performance data remains exclusively within your control.
 
-Privacy-focused: No data is sent to external servers, and no tracking or analytics are used.
+Target Operators:
+• Systems Architects
+• Frontend Engineers
+• SEO Strategists
+• Performance Reliability Engineers
 
-Permissions:
-• activeTab: To analyze the current tab (only when you click "Run Audit")
-• scripting: To run performance measurement code 
+Permissions Protocol:
+• activeTab: Grants temporary access for on-demand telemetry extraction.
+• scripting: Enables injection of measurement probes for deep-dive analysis.

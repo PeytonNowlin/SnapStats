@@ -1,162 +1,105 @@
-# SnapStats ⚡
-
-A Chrome extension that delivers in-depth performance insights for any website. SnapStats helps developers monitor **Core Web Vitals**, analyze network performance, and identify opportunities to optimize load times — all with privacy-first design.
+# SnapStats: Operational Intelligence for the Web
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Install-blue?logo=google-chrome)](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)
 
----
+**SnapStats is the operating system for web performance.** It transforms raw browser telemetry into critical decision advantage, empowering engineers to dissect, analyze, and optimize the digital infrastructure that powers user experience.
 
-## 🧠 Overview
-
-Modern websites demand speed. **SnapStats** brings performance analytics directly into your browser, allowing you to measure, visualize, and improve page performance without relying on external dashboards or third-party tracking tools.
-
-Built as a **lightweight Chrome extension**, it uses native browser APIs to measure metrics like **TTFB, FCP, LCP, and CLS**, and stores results locally for privacy and offline analysis.
+In an era where milliseconds dictate engagement, visibility is the precursor to victory. SnapStats provides a comprehensive operational picture of your web application's performance, integrating Core Web Vitals with granular resource intelligence to expose hidden latencies and structural inefficiencies.
 
 ---
 
-## 🚀 Key Features
+## // CORE CAPABILITIES
 
-### 📊 Core Web Vitals Tracking
+### VITAL TELEMETRY
+Capture high-fidelity signals across the performance spectrum. Monitor **Time to First Byte (TTFB)**, **Largest Contentful Paint (LCP)**, and **Cumulative Layout Shift (CLS)** with precision. Transform abstract metrics into a unified view of user experience health.
 
-Measure and visualize essential metrics:
-**TTFB (Time to First Byte)**, **FCP (First Contentful Paint)**, **LCP (Largest Contentful Paint)**, and **CLS (Cumulative Layout Shift)**.
+### INFRASTRUCTURE RECONNAISSANCE
+Deconstruct the network layer. Analyze resource distribution, payload weight, and request cascades. Identify bottlenecks in the supply chain of your application's delivery.
 
-### 🌐 Network Analysis
+### DECISION INTELLIGENCE
+Move beyond observation to action. SnapStats synthesizes performance data into actionable directives. Leverage color-coded thresholds and historical tracking to drive continuous optimization cycles and secure SEO dominance.
 
-See which resources slow down your site. View file sizes, request times, and waterfall-style loading data.
-
-### 📈 Performance History
-
-Track site performance over time with interactive charts and detailed metric comparisons.
-
-### 🧩 Actionable Recommendations
-
-Get tailored suggestions for improving performance across key metrics.
-
-### 🗂️ Resource Breakdown
-
-Inspect each resource loaded by the page and identify heavy or redundant assets.
-
-### 🔒 Privacy-Focused
-
-All data is stored **locally** using `localStorage`. No remote servers. No analytics tracking. No external dependencies.
+### SOVEREIGN ARCHITECTURE
+Security is foundational. SnapStats operates on a strictly **local-first protocol**. No external transmission. No third-party surveillance. Your performance data remains exclusively within your control.
 
 ---
 
-## 🛠️ Tech Stack
+## // DEPLOYMENT PROTOCOLS
 
-* **Platform:** Chrome Extension (Manifest v3)
-* **Languages:** HTML, CSS, JavaScript
-* **Charting:** Custom Canvas API visualizations
-* **Storage:** LocalStorage for offline data retention
-* **Build Tools:** Node.js for asset generation
+### OPTION A: CHROME WEB STORE (STANDARD DEPLOYMENT)
+1. Navigate to the [SnapStats Interface](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda).
+2. Execute **"Add to Chrome"**.
+3. Confirm integration. The operational icon will manifest in your toolbar.
 
----
-
-## ⚙️ Installation
-
-### From Chrome Web Store (Recommended)
-
-1. Visit [SnapStats on Chrome Web Store](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)
-2. Click **“Add to Chrome”**
-3. Confirm installation — the icon will appear in your toolbar
-
-### Local Development Setup
-
-1. Clone the repository
-
+### OPTION B: LOCAL FIELD DEPLOYMENT
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/PeytonNowlin/snapstats.git
    cd snapstats
    ```
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable **Developer mode** (toggle in the top-right corner)
-4. Click **“Load unpacked”** and select the `snapstats` directory
-5. SnapStats will appear in your extensions toolbar
+2. **Initialize Environment**:
+   Open Chrome and navigate to `chrome://extensions/`.
+3. **Engage Developer Mode**:
+   Toggle the switch in the top-right corner.
+4. **Load Unpacked Extension**:
+   Select the `snapstats` directory.
+5. **Verify Installation**:
+   Confirm SnapStats presence in the extensions toolbar.
 
 ---
 
-## 📖 Usage
+## // OPERATIONAL WORKFLOW
 
-1. Navigate to any website you want to analyze
-2. Click the **SnapStats** icon in your Chrome toolbar
-3. Click **“Run Audit”** to start performance analysis
-4. Explore tabs for **metrics**, **history**, and **network** insights
-
----
-
-## 🔧 Development
-
-### Prerequisites
-
-* Node.js (for generating Chrome Web Store promotional images)
-* Google Chrome
-
-### Setup
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-2. Generate promotional images
-
-   ```bash
-   npm run generate-promotional
-   ```
-
-### Project Structure
-
-```
-snapstats/
-├── manifest.json          # Extension configuration
-├── popup.html             # UI markup
-├── popup.js               # Core logic for popup interface
-├── icons/                 # Extension icons and assets
-├── PRIVACY.md             # Privacy policy
-└── README.md              # Documentation
-```
+1. **Target Acquisition**: Navigate to the web application under analysis.
+2. **Initiate Sequence**: Activate the SnapStats interface via the toolbar.
+3. **Execute Audit**: Trigger the "Run Audit" command to commence telemetry extraction.
+4. **Analyze Intelligence**: Review the generated report across **Metrics**, **History**, and **Network** vectors.
 
 ---
 
-## 🔒 Privacy
+## // SYSTEM ARCHITECTURE
 
-SnapStats only runs when you explicitly activate it.
-No personal data is collected, shared, or transmitted externally.
-All metrics and performance data are stored securely on your local device using Chrome’s `localStorage`.
-
-### Required Permissions
-
-* **activeTab** — to analyze the currently active website
-* **scripting** — to inject and execute performance measurement scripts
+* **Platform**: Chrome Extension (Manifest v3)
+* **Languages**: HTML, CSS, JavaScript
+* **Visualization**: Custom Canvas API
+* **Data Persistence**: LocalStorage (Offline-First)
+* **Build System**: Node.js
 
 ---
 
-## 🤝 Contributing
+## // PRIVACY PROTOCOL
 
-Contributions are welcome!
-If you’d like to help improve SnapStats, please review the [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests or feature suggestions.
-
----
-
-## 📄 License
-
-**MIT License** — see the [LICENSE](LICENSE) file for details.
+**SnapStats operates with zero-knowledge architecture.**
+* **No External Transmission**: All data processing occurs locally on the client device.
+* **No Surveillance**: No tracking pixels, no analytics, no third-party observers.
+* **Sovereign Data**: You own your performance metrics.
 
 ---
 
-## 📞 Contact
+## // CONTRIBUTING
 
-* **Developer:** Peyton Nowlin
-* **Email:** [peyton@teamnowlin.com](mailto:peyton@teamnowlin.com)
-* **Chrome Web Store:** [SnapStats](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)
+**Join the Mission.**
+If you possess the capabilities to enhance this operational tool, review the [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
 
 ---
 
-## ⭐ Support
+## // LICENSE
 
-If SnapStats helps you improve your site’s performance:
+**MIT License** — See [LICENSE](LICENSE) for legal parameters.
 
-* ⭐ **Star this repository**
-* 💬 **Share it with other developers**
-* 🌟 **Leave a review on the [Chrome Web Store](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)**
+---
+
+## // CONTACT
+
+* **Lead Engineer**: Peyton Nowlin
+* **Comms Channel**: [peyton@teamnowlin.com](mailto:peyton@teamnowlin.com)
+* **Distribution**: [Chrome Web Store](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)
+
+---
+
+## // SUPPORT THE MISSION
+
+If SnapStats provides you with a tactical advantage:
+* ⭐ **Star the Repository**
+* 💬 **Disseminate to Allied Engineers**
+* 🌟 **Endorse on the [Chrome Web Store](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)**
