@@ -89,10 +89,11 @@ If you possess the capabilities to enhance this operational tool, review the [Co
 
 ---
 
-## // CONTACT
+## // DEVELOPER
 
 * **Lead Engineer**: Peyton Nowlin
-* **Comms Channel**: [peyton@teamnowlin.com](mailto:peyton@teamnowlin.com)
+* **Email**: [Peyton@nowlinautomation.com](mailto:Peyton@nowlinautomation.com)
+* **Website**: [https://nowlinautomation.com](https://nowlinautomation.com)
 * **Distribution**: [Chrome Web Store](https://chromewebstore.google.com/detail/snapstats/adcagjffhijnoljgdfejadhcabbfneda)
 
 ---
